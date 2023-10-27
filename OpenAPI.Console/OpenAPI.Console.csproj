@@ -5,10 +5,30 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AssemblyName>Run</AssemblyName>
+		<RootNamespace>ShareInvest</RootNamespace>
+		<ApplicationIcon>ai.ico</ApplicationIcon>
+		<Authors>cyberprophet</Authors>
+		<Company>ShareInvest Corp.</Company>
+		<Product>AntTalk</Product>
+		<Copyright>Copyright ⓒ 2023, ShareInvest Corp.</Copyright>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="ShareInvest.OpenAPI" Version="1.1.1.2" />
+		<Content Include="ai.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\Algorithmic-Trading-Package\LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ShareInvest.OpenAPI" Version="1.1.1.2" />
 	</ItemGroup>
 
 </Project>

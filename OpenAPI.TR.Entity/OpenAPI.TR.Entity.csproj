@@ -1,17 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>ShareInvest.OpenAPI.TR.Entity</AssemblyName>
+		<RootNamespace>ShareInvest</RootNamespace>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageId>AntTalk</PackageId>
+		<Authors>cyberprophet</Authors>
+		<Company>ShareInvest Corp.</Company>
+		<Product>AntTalk</Product>
+		<Description>library for AnyCPU use and convenient of Kiwoom OpenAPI</Description>
+		<Copyright>Copyright ⓒ 2023, ShareInvest Corp.</Copyright>
+		<PackageProjectUrl>https://github.com/Share-Invest/securities-modules</PackageProjectUrl>
+		<PackageIcon>RoundLogo.png</PackageIcon>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Entities\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Entities\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\Algorithmic-Trading-Package\LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="G:\Images\RoundLogo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
