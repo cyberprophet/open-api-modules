@@ -25,6 +25,8 @@
 
 	<ItemGroup>
 		<Folder Include="Entities\" />
+		<Folder Include="Multiples\" />
+		<Folder Include="Singles\" />
 	</ItemGroup>
 
 	<ItemGroup>
