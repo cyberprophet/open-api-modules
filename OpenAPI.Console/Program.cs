@@ -1,65 +1,14 @@
-﻿using System.IO.Compression;
+﻿using ShareInvest;
+
+using System.Globalization;
+using System.IO.Compression;
 using System.Text;
 
-const string path = "C:\\OpenAPI\\data";
-const string createPath = "C:\\Users\\cyber\\Source\\Repos\\OpenAPI\\OpenAPI.TR.Entity\\Entities";
+const string path = @"C:\OpenAPI\data";
+const string createPath = @"OpenAPI.TR.Entity\Entities";
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-static string[] GetKeyNames(string str)
-{
-    var sections = new Queue<string>();
-
-    foreach (var line in str.Split("\r\n", StringSplitOptions.RemoveEmptyEntries))
-    {
-        int pos = line.IndexOf('=');
-
-        if (pos != -1)
-        {
-            sections.Enqueue(line[..pos].Trim());
-        }
-    }
-    return sections.ToArray();
-}
-static string CreateClass(string className, string singleName, string? multiName)
-{
-    if (string.IsNullOrEmpty(multiName))
-    {
-        return $"using Newtonsoft.Json;" +
-               $"\r\nusing System.Runtime.Serialization;" +
-               $"\r\nnamespace ShareInvest.OpenAPI.Entity;" +
-               $"\r\n\r\npublic class {className}: TR" +
-               $"{{" +
-               $"[DataMember, JsonProperty(\"{singleName}\")]" +
-               $"public Single{className}? SingleResponse" +
-               $"{{ get; set; }}" +
-               $"}}";
-    }
-    if (string.IsNullOrEmpty(singleName))
-    {
-        return $"using Newtonsoft.Json;" +
-               $"\r\nusing System.Runtime.Serialization;" +
-               $"\r\nnamespace ShareInvest.OpenAPI.Entity;" +
-               $"\r\n\r\npublic class {className}: TR" +
-               $"{{" +
-               $"[DataMember, JsonProperty(\"{multiName}\")]" +
-               $"public Multi{multiName}[]? MultiResponse" +
-               $"{{ get; set; }}" +
-               $"}}";
-    }
-    return $"using Newtonsoft.Json;" +
-           $"\r\nusing System.Runtime.Serialization;" +
-           $"\r\nnamespace ShareInvest.OpenAPI.Entity;" +
-           $"\r\n\r\npublic class {className}: TR" +
-           $"{{" +
-           $"[DataMember, JsonProperty(\"{singleName}\")]" +
-           $"public Single{className}? SingleResponse" +
-           $"{{ get; set; }}" +
-           $"[DataMember, JsonProperty(\"{multiName}\")]" +
-           $"public Multi{multiName}[]? MultiResponse" +
-           $"{{ get; set; }}" +
-           $"}}";
-}
 foreach (var file in Directory.GetFiles(path, "*.enc", SearchOption.TopDirectoryOnly))
 {
     var fi = new FileInfo(file);
@@ -74,7 +23,11 @@ foreach (var file in Directory.GetFiles(path, "*.enc", SearchOption.TopDirectory
 
         foreach (var entry in zip.Entries)
         {
-            var filePath = $"{createPath}\\{code}.cs";
+            StringBuilder createContents = new(Syntax.CreateNamespace());
+
+            var filePath = string.Concat(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\", createPath)), '\\', code, ".cs");
+
+            string className = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(code);
 
             var buffer = new byte[0x4000];
 
@@ -93,10 +46,12 @@ foreach (var file in Directory.GetFiles(path, "*.enc", SearchOption.TopDirectory
 
             var trName = text[nPos..nPosEnd];
 
+            createContents.Append(Syntax.CreateClass(className, trName));
+
             nPos = nPosEnd + "\r\n".Length;
             nPosEnd = text.IndexOf("@END_", nPos);
 
-            var trInput = GetKeyNames(text[nPos..nPosEnd]);
+            var trInput = Syntax.GetKeyNames(text[nPos..nPosEnd]);
 
             nPos = nPosEnd;
             nPos = text.IndexOf("[OUTPUT]", nPos);
@@ -115,18 +70,22 @@ foreach (var file in Directory.GetFiles(path, "*.enc", SearchOption.TopDirectory
 
             var contents = text[nPos..nPosEnd];
 
-            string[] trMultiData = Array.Empty<string>();
+            string[] trMultiData = Array.Empty<string>(), trSingleData = Array.Empty<string>();
 
             string? multiName = null;
 
+            StringBuilder? singleClass = null, multiClass = null;
+
             if (classification == "*,*,*")
             {
-                var trSingleData = GetKeyNames(contents);
+                createContents.Append(Syntax.CreateSingleResponse(className, singleName));
 
-                for (int i = 0; i < trSingleData.Length; i++)
-                {
-                    Console.WriteLine(trSingleData[i]);
-                }
+                trSingleData = Syntax.GetKeyNames(contents);
+
+                singleClass = new StringBuilder(Syntax.CreateNamespace());
+
+                singleClass.Append(Syntax.CreateSingleResponseClass(className, singleName));
+
                 nPos = nPosEnd + "\r\n".Length;
                 nPos = text.IndexOf("@START_", nPos);
 
@@ -136,24 +95,48 @@ foreach (var file in Directory.GetFiles(path, "*.enc", SearchOption.TopDirectory
 
                     multiName = text.Substring(nPos + 7, nPosEnd - nPos - 7);
 
+                    createContents.Append(Syntax.CreateMultiResponse(className, multiName));
+
                     nPosEnd = text.IndexOf("\r\n", nPos);
                     nPos = nPosEnd + "\r\n".Length;
                     nPosEnd = text.IndexOf("@END_", nPos);
 
-                    trMultiData = GetKeyNames(text[nPos..nPosEnd]);
+                    trMultiData = Syntax.GetKeyNames(text[nPos..nPosEnd]);
+
+                    multiClass = new StringBuilder(Syntax.CreateNamespace());
+
+                    multiClass.Append(Syntax.CreateMultiResponseClass(className, multiName));
                 }
             }
             else
             {
-                trMultiData = GetKeyNames(contents);
+                createContents.Append(Syntax.CreateMultiResponse(className, singleName));
+
+                trMultiData = Syntax.GetKeyNames(contents);
+
+                multiClass = new StringBuilder(Syntax.CreateNamespace());
+
+                multiClass.Append(Syntax.CreateMultiResponseClass(className, singleName));
+            }
+            for (int i = 0; i < trSingleData.Length; i++)
+            {
+                singleClass?.Append(Syntax.CreateProperty(trSingleData[i]));
             }
             for (int i = 0; i < trMultiData.Length; i++)
             {
-                Console.WriteLine(trMultiData[i]);
+                multiClass?.Append(Syntax.CreateProperty(trMultiData[i]));
             }
-            if (!new FileInfo(filePath).Exists)
+            createContents.Append(Syntax.CreateProperty(trInput, trName, className, trSingleData, trMultiData));
+
+            File.WriteAllText(filePath, createContents.Append('}').ToString());
+
+            if (singleClass != null)
             {
-                File.WriteAllText(filePath, CreateClass(code, singleName, multiName));
+                File.WriteAllText(filePath.Replace("Entities", "Singles"), singleClass.Append('}').ToString());
+            }
+            if (multiClass != null)
+            {
+                File.WriteAllText(filePath.Replace("Entities", "Multiples"), multiClass.Append('}').ToString());
             }
         }
     }
