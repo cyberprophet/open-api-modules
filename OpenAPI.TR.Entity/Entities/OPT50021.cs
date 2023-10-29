@@ -13,6 +13,9 @@ public class OPT50021 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.만기년월
+    /// </summary>
     public override string[] Id => new[] { "만기년월" };
     public override string[]? Value
     {

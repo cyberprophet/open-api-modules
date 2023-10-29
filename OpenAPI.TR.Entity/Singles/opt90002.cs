@@ -9,13 +9,13 @@ public class SingleOpt90002
 {
     /// <summary>등락률</summary>
     [DataMember, JsonProperty("등락률")]
-    public string? 등락률
+    public string? FluctuationRate
     {
         get; set;
     }
     /// <summary>기간수익률</summary>
     [DataMember, JsonProperty("기간수익률")]
-    public string? 기간수익률
+    public string? TermRateOfReturn
     {
         get; set;
     }

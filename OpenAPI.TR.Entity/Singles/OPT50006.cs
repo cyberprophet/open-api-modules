@@ -9,7 +9,7 @@ public class SingleOPT50006
 {
     /// <summary>종목명</summary>
     [DataMember, JsonProperty("종목명")]
-    public string? 종목명
+    public string? Name
     {
         get; set;
     }

@@ -9,19 +9,19 @@ public class MultiOPT50036
 {
     /// <summary>일자</summary>
     [DataMember, JsonProperty("일자")]
-    public string? 일자
+    public string? Date
     {
         get; set;
     }
     /// <summary>전일종가</summary>
     [DataMember, JsonProperty("전일종가")]
-    public string? 전일종가
+    public string? ClosingPriceOfTheDayBefore
     {
         get; set;
     }
     /// <summary>선물역사적변동성</summary>
     [DataMember, JsonProperty("선물역사적변동성")]
-    public string? 선물역사적변동성
+    public string? FuturesHistoricalVolatility
     {
         get; set;
     }

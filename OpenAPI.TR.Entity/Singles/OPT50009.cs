@@ -9,19 +9,19 @@ public class SingleOPT50009
 {
     /// <summary>시가</summary>
     [DataMember, JsonProperty("시가")]
-    public string? 시가
+    public string? StartPrice
     {
         get; set;
     }
     /// <summary>고가</summary>
     [DataMember, JsonProperty("고가")]
-    public string? 고가
+    public string? HighPrice
     {
         get; set;
     }
     /// <summary>저가</summary>
     [DataMember, JsonProperty("저가")]
-    public string? 저가
+    public string? LowPrice
     {
         get; set;
     }

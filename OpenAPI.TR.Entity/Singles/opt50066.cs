@@ -9,13 +9,13 @@ public class SingleOpt50066
 {
     /// <summary>종목코드</summary>
     [DataMember, JsonProperty("종목코드")]
-    public string? 종목코드
+    public string? Code
     {
         get; set;
     }
     /// <summary>마지막틱갯수</summary>
     [DataMember, JsonProperty("마지막틱갯수")]
-    public string? 마지막틱갯수
+    public string? LastTickCount
     {
         get; set;
     }

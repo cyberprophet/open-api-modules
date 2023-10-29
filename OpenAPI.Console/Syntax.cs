@@ -50,10 +50,10 @@ static class Syntax
         return $"\r\n/// <summary>{multiName}</summary>\r\n" +
                $"[DataMember, JsonProperty(\"{multiName}\")]public Multi{className}[]? MultiResponse{{ get; set; }}";
     }
-    internal static string CreateProperty(string propertyName)
+    internal static string CreateProperty(string propertyName, string translatedName)
     {
         return $"\r\n/// <summary>{propertyName}</summary>\r\n" +
-               $"[DataMember, JsonProperty(\"{propertyName}\")]\r\npublic string? {propertyName}{{ get; set; }}";
+               $"[DataMember, JsonProperty(\"{propertyName}\")]\r\npublic string? {translatedName}{{ get; set; }}";
     }
     internal static string CreateProperty(string[] trInput, string trName, string className, string[] single, string[] multi)
     {
@@ -95,7 +95,7 @@ static class Syntax
             }
             inputSb.Append(',');
         }
-        return $"public override string[] Id => {DetermineIfTheSyntaxIsCorrect(trInput.Length == 0, inputSb)}" +
+        return $"{CreateSummary(trInput)}public override string[] Id => {DetermineIfTheSyntaxIsCorrect(trInput.Length == 0, inputSb)}" +
                "\r\n    public override string[]? Value\r\n    {\r\n        get; set;\r\n    }\r\n" +
                $"    public override string? RQName\r\n    {{\r\n        set\r\n        {{\r\n\r\n        }}\r\n        get => \"{trName}\";" +
                "\r\n    }\r\n    public override string TrCode\r\n    {\r\n        get => " +
@@ -107,5 +107,16 @@ static class Syntax
     static string DetermineIfTheSyntaxIsCorrect(bool isCorrect, StringBuilder sb)
     {
         return isCorrect ? "Array.Empty<string>();" : $"new[]{{ {sb}}};";
+    }
+    static string CreateSummary(string[] trInput)
+    {
+        StringBuilder sb = new($"\r\n/// <summary>");
+
+        for (int i = 0; i < trInput.Length; i++)
+        {
+            sb.Append("\r\n/// ");
+            sb.Append($"{i + 1}.{trInput[i]}");
+        }
+        return trInput.Length > 0 ? sb.Append("\r\n/// </summary>\r\n").ToString() : string.Empty;
     }
 }
