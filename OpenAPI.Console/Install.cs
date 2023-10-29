@@ -28,6 +28,10 @@ class Install
 
                     var filePath = string.Concat(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\", createPath)), '\\', code, ".cs");
 
+                    if (new FileInfo(filePath).Exists)
+                    {
+                        continue;
+                    }
                     string className = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(code);
 
                     var buffer = new byte[0x4000];
