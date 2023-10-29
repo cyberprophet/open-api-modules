@@ -9,7 +9,7 @@ public class SingleOPW20011
 {
     /// <summary>출력건수</summary>
     [DataMember, JsonProperty("출력건수")]
-    public string? 출력건수
+    public string? NumberOfOutputs
     {
         get; set;
     }

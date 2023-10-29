@@ -19,6 +19,10 @@ public class Opt90002 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.날짜구분
+    /// 2.종목코드
+    /// </summary>
     public override string[] Id => new[] { "날짜구분", "종목코드" };
     public override string[]? Value
     {

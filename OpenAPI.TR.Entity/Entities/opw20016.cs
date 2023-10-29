@@ -19,6 +19,11 @@ public class Opw20016 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.신용종목등급구분
+    /// 2.시장거래구분
+    /// 3.종목번호
+    /// </summary>
     public override string[] Id => new[] { "신용종목등급구분", "시장거래구분", "종목번호" };
     public override string[]? Value
     {

@@ -9,31 +9,31 @@ public class MultiOPT10065
 {
     /// <summary>종목코드</summary>
     [DataMember, JsonProperty("종목코드")]
-    public string? 종목코드
+    public string? Code
     {
         get; set;
     }
     /// <summary>종목명</summary>
     [DataMember, JsonProperty("종목명")]
-    public string? 종목명
+    public string? Name
     {
         get; set;
     }
     /// <summary>매도량</summary>
     [DataMember, JsonProperty("매도량")]
-    public string? 매도량
+    public string? SellingVolume
     {
         get; set;
     }
     /// <summary>매수량</summary>
     [DataMember, JsonProperty("매수량")]
-    public string? 매수량
+    public string? TheAmountOfGoods
     {
         get; set;
     }
     /// <summary>순매도</summary>
     [DataMember, JsonProperty("순매도")]
-    public string? 순매도
+    public string? NetSelling
     {
         get; set;
     }

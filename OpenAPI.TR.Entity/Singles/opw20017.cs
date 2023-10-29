@@ -9,7 +9,7 @@ public class SingleOpw20017
 {
     /// <summary>신용가능여부</summary>
     [DataMember, JsonProperty("신용가능여부")]
-    public string? 신용가능여부
+    public string? CreditAvailability
     {
         get; set;
     }

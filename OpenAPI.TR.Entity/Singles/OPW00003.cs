@@ -9,7 +9,7 @@ public class SingleOPW00003
 {
     /// <summary>추정예탁자산</summary>
     [DataMember, JsonProperty("추정예탁자산")]
-    public string? 추정예탁자산
+    public string? EstimatedDepositAssets
     {
         get; set;
     }

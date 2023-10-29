@@ -9,13 +9,13 @@ public class SingleOpw00015
 {
     /// <summary>계좌번호</summary>
     [DataMember, JsonProperty("계좌번호")]
-    public string? 계좌번호
+    public string? AccountNumber
     {
         get; set;
     }
     /// <summary>출력건수</summary>
     [DataMember, JsonProperty("출력건수")]
-    public string? 출력건수
+    public string? NumberOfOutputs
     {
         get; set;
     }

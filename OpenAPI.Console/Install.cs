@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using ShareInvest.Utilities.Naver;
+
+using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 
@@ -6,7 +8,7 @@ namespace ShareInvest;
 
 class Install
 {
-    internal void Run()
+    internal async Task RunAsync()
     {
         foreach (var file in Directory.GetFiles(path, "*.enc", SearchOption.TopDirectoryOnly))
         {
@@ -26,6 +28,10 @@ class Install
 
                     var filePath = string.Concat(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..\..\..\", createPath)), '\\', code, ".cs");
 
+                    if (new FileInfo(filePath).Exists)
+                    {
+                        continue;
+                    }
                     string className = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(code);
 
                     var buffer = new byte[0x4000];
@@ -45,8 +51,6 @@ class Install
 
                     var trName = text[nPos..nPosEnd];
 
-                    createContents.Append(Syntax.CreateClass(className, trName));
-
                     nPos = nPosEnd + "\r\n".Length;
                     nPosEnd = text.IndexOf("@END_", nPos);
 
@@ -56,6 +60,8 @@ class Install
                     nPos = text.IndexOf("[OUTPUT]", nPos);
                     nPos = text.IndexOf("@START_", nPos);
                     nPosEnd = text.IndexOf('=', nPos);
+
+                    createContents.Append(Syntax.CreateClass(className, trName));
 
                     var singleName = text.Substring(nPos + 7, nPosEnd - nPos - 7);
 
@@ -119,11 +125,11 @@ class Install
                     }
                     for (int i = 0; i < trSingleData.Length; i++)
                     {
-                        singleClass?.Append(Syntax.CreateProperty(trSingleData[i]));
+                        singleClass?.Append(Syntax.CreateProperty(trSingleData[i], await TranslateAsync(trSingleData[i])));
                     }
                     for (int i = 0; i < trMultiData.Length; i++)
                     {
-                        multiClass?.Append(Syntax.CreateProperty(trMultiData[i]));
+                        multiClass?.Append(Syntax.CreateProperty(trMultiData[i], await TranslateAsync(trMultiData[i])));
                     }
                     createContents.Append(Syntax.CreateProperty(trInput, trName, className, trSingleData, trMultiData));
 
@@ -141,13 +147,39 @@ class Install
             }
         }
     }
-    internal Install(string path, string createPath)
+    internal Install(Papago papago, string path, string createPath)
     {
         this.path = path;
         this.createPath = createPath;
+        this.papago = papago;
 
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
+    async Task<string> TranslateAsync(string name)
+    {
+        if (tranlatedName.TryGetValue(name, out string? translatedName))
+        {
+            return translatedName;
+        }
+        var detectLangCode = await papago.DetectLanguage(name);
+
+        if ("ko".Equals(detectLangCode))
+        {
+            var translatedText = Transform.TransformInbound((await papago.TranslateAsync(detectLangCode, name)).Value.Result.TranslatedText);
+
+            if (tranlatedName.TryAdd(name, translatedText))
+            {
+                return translatedText;
+            }
+        }
+        return name;
+    }
     readonly string path;
     readonly string createPath;
+    readonly Dictionary<string, string> tranlatedName = new()
+    {
+        { "종목코드", "Code" },
+        { "종목명", "Name" }
+    };
+    readonly Papago papago;
 }

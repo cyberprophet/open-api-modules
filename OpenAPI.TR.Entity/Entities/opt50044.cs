@@ -19,6 +19,10 @@ public class Opt50044 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.근월물구분
+    /// 2.입력구분
+    /// </summary>
     public override string[] Id => new[] { "근월물구분", "입력구분" };
     public override string[]? Value
     {

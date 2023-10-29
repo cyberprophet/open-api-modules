@@ -1,7 +1,10 @@
-﻿const string path = @"C:\OpenAPI\data";
+﻿using ShareInvest;
+using ShareInvest.Utilities.Naver;
+
+const string path = @"C:\OpenAPI\data";
 const string createPath = @"OpenAPI.TR.Entity\Entities";
 
-if (string.IsNullOrEmpty(path))
+using (var papago = new Papago("YOUR-CLIENT-ID", "YOUR-CLIENT-SECRET"))
 {
-    Console.WriteLine(createPath);
+    await new Install(papago, path, createPath).RunAsync();
 }

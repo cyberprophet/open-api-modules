@@ -9,7 +9,7 @@ public class SingleOPW00014
 {
     /// <summary>일치여부</summary>
     [DataMember, JsonProperty("일치여부")]
-    public string? 일치여부
+    public string? MatchingStatus
     {
         get; set;
     }

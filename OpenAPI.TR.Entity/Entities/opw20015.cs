@@ -19,6 +19,10 @@ public class Opw20015 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.월물구분
+    /// 2.클래스구분
+    /// </summary>
     public override string[] Id => new[] { "월물구분", "클래스구분" };
     public override string[]? Value
     {

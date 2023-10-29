@@ -9,25 +9,25 @@ public class SingleOpw20015
 {
     /// <summary>종목코드</summary>
     [DataMember, JsonProperty("종목코드")]
-    public string? 종목코드
+    public string? Code
     {
         get; set;
     }
     /// <summary>ATM행사가격</summary>
     [DataMember, JsonProperty("ATM행사가격")]
-    public string? ATM행사가격
+    public string? ATMOfferPrice
     {
         get; set;
     }
     /// <summary>위치</summary>
     [DataMember, JsonProperty("위치")]
-    public string? 위치
+    public string? Location
     {
         get; set;
     }
     /// <summary>조회건수</summary>
     [DataMember, JsonProperty("조회건수")]
-    public string? 조회건수
+    public string? NumberOfInquiries
     {
         get; set;
     }
