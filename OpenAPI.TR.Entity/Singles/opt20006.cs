@@ -9,7 +9,7 @@ public class SingleOpt20006
 {
     /// <summary>업종코드</summary>
     [DataMember, JsonProperty("업종코드")]
-    public string? 업종코드
+    public string? IndustryCode
     {
         get; set;
     }

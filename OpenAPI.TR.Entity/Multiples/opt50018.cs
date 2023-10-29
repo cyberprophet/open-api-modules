@@ -9,19 +9,19 @@ public class MultiOpt50018
 {
     /// <summary>체결시간</summary>
     [DataMember, JsonProperty("체결시간")]
-    public string? 체결시간
+    public string? ConcludingTime
     {
         get; set;
     }
     /// <summary>콜풋RATIO</summary>
     [DataMember, JsonProperty("콜풋RATIO")]
-    public string? 콜풋RATIO
+    public string? CallFootRATIO
     {
         get; set;
     }
     /// <summary>코스피200</summary>
     [DataMember, JsonProperty("코스피200")]
-    public string? 코스피200
+    public string? KOSPI200
     {
         get; set;
     }

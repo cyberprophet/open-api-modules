@@ -13,6 +13,12 @@ public class OPT50025 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.역사적변동성1
+    /// 2.역사적변동성2
+    /// 3.역사적변동성3
+    /// 4.기간
+    /// </summary>
     public override string[] Id => new[] { "역사적변동성1", "역사적변동성2", "역사적변동성3", "기간" };
     public override string[]? Value
     {

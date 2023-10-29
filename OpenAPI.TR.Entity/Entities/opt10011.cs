@@ -13,6 +13,9 @@ public class Opt10011 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.신주인수권구분
+    /// </summary>
     public override string[] Id => new[] { "신주인수권구분" };
     public override string[]? Value
     {

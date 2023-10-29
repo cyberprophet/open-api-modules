@@ -13,6 +13,13 @@ public class Opt10059 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.일자
+    /// 2.종목코드
+    /// 3.금액수량구분
+    /// 4.매매구분
+    /// 5.단위구분
+    /// </summary>
     public override string[] Id => new[] { "일자", "종목코드", "금액수량구분", "매매구분", "단위구분" };
     public override string[]? Value
     {

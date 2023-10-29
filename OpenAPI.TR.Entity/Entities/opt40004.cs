@@ -13,6 +13,13 @@ public class Opt40004 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.과세유형
+    /// 2.NAV대비
+    /// 3.운용사
+    /// 4.과세여부
+    /// 5.추적지수
+    /// </summary>
     public override string[] Id => new[] { "과세유형", "NAV대비", "운용사", "과세여부", "추적지수" };
     public override string[]? Value
     {

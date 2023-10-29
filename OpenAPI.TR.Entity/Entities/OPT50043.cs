@@ -13,6 +13,9 @@ public class OPT50043 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.거래대금구분
+    /// </summary>
     public override string[] Id => new[] { "거래대금구분" };
     public override string[]? Value
     {

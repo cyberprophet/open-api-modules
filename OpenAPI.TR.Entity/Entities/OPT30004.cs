@@ -13,6 +13,13 @@ public class OPT30004 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.발행사코드
+    /// 2.기초자산코드
+    /// 3.권리구분
+    /// 4.LP코드
+    /// 5.거래종료ELW제외
+    /// </summary>
     public override string[] Id => new[] { "발행사코드", "기초자산코드", "권리구분", "LP코드", "거래종료ELW제외" };
     public override string[]? Value
     {

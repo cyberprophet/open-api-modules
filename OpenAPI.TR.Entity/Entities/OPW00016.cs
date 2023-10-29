@@ -13,6 +13,13 @@ public class OPW00016 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.계좌번호
+    /// 2.비밀번호
+    /// 3.평가시작일
+    /// 4.평가종료일
+    /// 5.비밀번호입력매체구분
+    /// </summary>
     public override string[] Id => new[] { "계좌번호", "비밀번호", "평가시작일", "평가종료일", "비밀번호입력매체구분" };
     public override string[]? Value
     {

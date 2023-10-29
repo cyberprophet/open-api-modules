@@ -9,7 +9,7 @@ public class SingleOpt10077
 {
     /// <summary>당일실현손익</summary>
     [DataMember, JsonProperty("당일실현손익")]
-    public string? 당일실현손익
+    public string? EarningsAndLossesRealizedOnTheSameDay
     {
         get; set;
     }

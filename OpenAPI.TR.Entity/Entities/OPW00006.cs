@@ -19,6 +19,11 @@ public class OPW00006 : TR
     {
         get; set;
     }
+    /// <summary>
+    /// 1.일자
+    /// 2.지점코드
+    /// 3.시작주문번호
+    /// </summary>
     public override string[] Id => new[] { "일자", "지점코드", "시작주문번호" };
     public override string[]? Value
     {
