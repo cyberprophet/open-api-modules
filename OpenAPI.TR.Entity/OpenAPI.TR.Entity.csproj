@@ -7,17 +7,18 @@
 		<AssemblyName>ShareInvest.OpenAPI.TR.Entity</AssemblyName>
 		<RootNamespace>ShareInvest</RootNamespace>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<PackageId>AntTalk</PackageId>
+		<PackageId>ShareInvest.OpenAPI.TR.Entity</PackageId>
 		<Authors>cyberprophet</Authors>
 		<Company>ShareInvest Corp.</Company>
 		<Product>AntTalk</Product>
 		<Description>library for AnyCPU use and convenient of Kiwoom OpenAPI</Description>
 		<Copyright>Copyright ⓒ 2023, ShareInvest Corp.</Copyright>
-		<PackageProjectUrl>https://github.com/Share-Invest/securities-modules</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/Share-Invest/open-api-modules</PackageProjectUrl>
 		<PackageIcon>RoundLogo.png</PackageIcon>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<Version>1.0.0.0</Version>
+		<Title>AntTalk</Title>
 	</PropertyGroup>
 
 	<ItemGroup>
