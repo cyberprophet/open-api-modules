@@ -25,11 +25,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\..\Algorithmic-Trading-Package\LICENSE.txt">
+		<None Include="..\LICENSE.txt">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="G:\Images\RoundLogo.png">
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\RoundLogo.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
