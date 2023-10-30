@@ -19,7 +19,7 @@
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageTags>OpenAPI;Kiwoom;Trading;API;Stock</PackageTags>
 		<Title>AntTalk</Title>
-		<Version>1.1.1.2</Version>
+		<Version>1.1.1.3</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
