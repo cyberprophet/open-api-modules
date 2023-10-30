@@ -1,4 +1,11 @@
-· 키움증권 **OpenAPI**의 총 **227**개의 **TR**을 간편하게 요청하고 응답을 **JSON**으로 편리하게 받을 수 있는 패키지
+### 2023.10.30  
+- implementing the ability to freely control entity through virtualization  
+1. [**OPTKWFID**](https://github.com/Share-Invest/open-api-modules/blob/dev/OpenAPI.TR.Entity/Entities/OPTKWFID.cs)  
+2. [**OPW00004**](https://github.com/Share-Invest/open-api-modules/blob/dev/OpenAPI.TR.Entity/Entities/OPW00004.cs)  
+3. [**opt10001**](https://github.com/Share-Invest/open-api-modules/blob/dev/OpenAPI.TR.Entity/Entities/opt10001.cs)  
+4. [**opw00005**](https://github.com/Share-Invest/open-api-modules/blob/dev/OpenAPI.TR.Entity/Entities/opw00005.cs)      
+### 2023.10.29  
+- 키움증권 **OpenAPI**의 총 **227**개의 **TR**을 간편하게 요청하고 응답을 **JSON**으로 편리하게 받을 수 있는 패키지
 ```C#
 using Newtonsoft.Json;
 
