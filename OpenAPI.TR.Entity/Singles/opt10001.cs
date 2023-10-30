@@ -51,13 +51,13 @@ public class SingleOpt10001
     }
     /// <summary>연중최고</summary>
     [DataMember, JsonProperty("연중최고")]
-    public string? TheBestOfTheYear
+    public string? BestOfTheYear
     {
         get; set;
     }
     /// <summary>연중최저</summary>
     [DataMember, JsonProperty("연중최저")]
-    public string? TheLowestOfTheYear
+    public string? LowestOfTheYear
     {
         get; set;
     }
@@ -141,13 +141,13 @@ public class SingleOpt10001
     }
     /// <summary>250최고</summary>
     [DataMember, JsonProperty("250최고")]
-    public string? IsTheBest
+    public string? HighestPriceIn250Days
     {
         get; set;
     }
     /// <summary>250최저</summary>
     [DataMember, JsonProperty("250최저")]
-    public string? Lowest
+    public string? LowestPriceIn250Days
     {
         get; set;
     }
@@ -171,13 +171,13 @@ public class SingleOpt10001
     }
     /// <summary>상한가</summary>
     [DataMember, JsonProperty("상한가")]
-    public string? UpperLimit
+    public string? UpperLimitPrice
     {
         get; set;
     }
     /// <summary>하한가</summary>
     [DataMember, JsonProperty("하한가")]
-    public string? LowerPrice
+    public string? LowerLimitPrice
     {
         get; set;
     }
