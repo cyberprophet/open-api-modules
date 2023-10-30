@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net7.0-windows10.0.17763.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
+		<PlatformTarget>x86</PlatformTarget>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\OpenAPI.Control.x86\OpenAPI.Control.x86.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="AxKHOpenAPILib">
+			<HintPath>..\OpenAPI.Control.x86\Resources\AxKHOpenAPILib.dll</HintPath>
+		</Reference>
+		<Reference Include="KHOpenAPILib">
+			<HintPath>..\OpenAPI.Control.x86\Resources\KHOpenAPILib.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+</Project>
