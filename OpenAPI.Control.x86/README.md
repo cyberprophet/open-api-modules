@@ -21,12 +21,12 @@ partial class Kiwoom : Form
         };
         ax.API.OnReceiveTrData += (sender, e) =>
         {
-            /// <summary>JSON또는 Dictionary로 return을 받을 수 있습니다.</summary>
+            /// <summary>JSON 또는 Dictionary로 return을 받을 수 있습니다.</summary>
             var dictionary = ax.ConvertTrSingleData<Dictionary<string, string>>(tr.Single, e);
 
             var json = ax.ConvertTrSingleData<string>(tr.Single, e);
 
-            /// <summary>JSON으로 return 받았다면 Entity패키지를 사용하여 class로 변환할 수 있습니다.
+            /// <summary>JSON으로 return받았다면 Entity패키지를 사용하여 class로 변환할 수 있습니다.
             var result = JsonConvert.DeserializeObject<SingleOpt10001>(json);
 
             Console.WriteLine(json);
