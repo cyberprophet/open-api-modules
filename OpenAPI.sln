@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAPI.TR.Entity", "OpenAP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ant.Modules", "..\SecuritiesModules\Ant.Modules\Ant.Modules.csproj", "{9EF1A47F-73A7-4F6F-86E7-0EB8A409ACD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAPI.Control.x86", "OpenAPI.Control.x86\OpenAPI.Control.x86.csproj", "{F45B387C-24C2-4A5C-95C3-875E09B79BA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAPI.Control.x86", "OpenAPI.Control.x86\OpenAPI.Control.x86.csproj", "{F45B387C-24C2-4A5C-95C3-875E09B79BA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAPI.WinForm.x86", "OpenAPI.WinForm.x86\OpenAPI.WinForm.x86.csproj", "{ACEC0C6F-0782-4695-8300-BE9F32111683}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAPI.WinForm.x86", "OpenAPI.WinForm.x86\OpenAPI.WinForm.x86.csproj", "{ACEC0C6F-0782-4695-8300-BE9F32111683}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAPI.Ant.x86", "OpenAPI.Ant.x86\OpenAPI.Ant.x86.csproj", "{3A1CFED1-A2DD-4C36-AEFB-72747C6F8E6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{ACEC0C6F-0782-4695-8300-BE9F32111683}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACEC0C6F-0782-4695-8300-BE9F32111683}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACEC0C6F-0782-4695-8300-BE9F32111683}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A1CFED1-A2DD-4C36-AEFB-72747C6F8E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A1CFED1-A2DD-4C36-AEFB-72747C6F8E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A1CFED1-A2DD-4C36-AEFB-72747C6F8E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A1CFED1-A2DD-4C36-AEFB-72747C6F8E6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
