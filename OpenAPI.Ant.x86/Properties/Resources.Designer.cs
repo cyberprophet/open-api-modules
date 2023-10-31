@@ -100,6 +100,15 @@ namespace ShareInvest.Properties {
         }
         
         /// <summary>
+        ///   장시작시간과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        internal static string OPERATION {
+            get {
+                return ResourceManager.GetString("OPERATION", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   It can be fatal to data when manually terminated.||Do you really want to end it?과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         internal static string WARNING {
