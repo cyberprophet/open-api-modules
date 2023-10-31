@@ -13,8 +13,8 @@ partial class AxKH
             if (axAPI is not null)
             {
                 Controls.Remove(axAPI);
+
                 axAPI.Dispose();
-                axAPI = null;
             }
             if (components is not null)
             {
@@ -28,7 +28,6 @@ partial class AxKH
     {
         components = new Container();
         this.resources = new ComponentResourceManager(typeof(AxKH));
-        this.axAPI = new AxKHOpenAPI();
         ((ISupportInitialize)(this.axAPI)).BeginInit();
         this.SuspendLayout();
         this.axAPI.Location = new System.Drawing.Point(0, 0);
@@ -51,7 +50,8 @@ partial class AxKH
         ((ISupportInitialize)(this.axAPI)).EndInit();
         this.ResumeLayout(false);
     }
-    AxKHOpenAPI axAPI;
-    ComponentResourceManager resources;
     IContainer components;
+    ComponentResourceManager resources;
+
+    protected readonly AxKHOpenAPI axAPI = new AxKHOpenAPI();
 }
