@@ -18,7 +18,7 @@ class AnTalkClient : RestClient
         headers.Add(KnownHeaders.Authorization, $"Bearer {accessToken}");
     })
     {
-        cts = new CancellationTokenSource();
+
     }
-    readonly CancellationTokenSource cts;
+    readonly CancellationTokenSource cts = new();
 }

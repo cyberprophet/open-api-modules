@@ -1,4 +1,8 @@
-﻿using ShareInvest.Properties;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Configuration;
+
+using ShareInvest.Hubs.Socket;
+using ShareInvest.Properties;
 
 using System.Diagnostics;
 
@@ -6,10 +10,6 @@ namespace ShareInvest;
 
 partial class AnTalk : Form
 {
-    DialogResult IsCancelled
-    {
-        get => MessageBox.Show(Resources.WARNING.Replace('|', '\n'), Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-    }
     internal AnTalk(string serialKey, Icon[] icons)
     {
         this.icons = icons;
@@ -45,14 +45,22 @@ partial class AnTalk : Form
             FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Minimized;
 
-            _ = Task.Run(() => { });
+            _ = Task.Run(async () =>
+            {
+                string? resource = Authentication.Configuration.GetConnectionString(nameof(resource));
+
+                if (string.IsNullOrEmpty(resource) is false)
+                {
+                    await ConnectingAsync(resource);
+                }
+            });
             return;
         }
         var now = DateTime.Now;
 
         if (Talk != null)
         {
-            // TODO make socket if (HubConnectionState.Connected != Socket?.Hub.State)
+            if (HubConnectionState.Connected != Socket?.Hub.State)
             {
                 _ = BeginInvoke(Dispose);
             }
@@ -123,6 +131,14 @@ partial class AnTalk : Form
             return;
         }
         Dispose();
+    }
+    DialogResult IsCancelled
+    {
+        get => MessageBox.Show(Resources.WARNING.Replace('|', '\n'), Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+    }
+    KiwoomHub? Socket
+    {
+        get; set;
     }
     AnTalkClient? Talk
     {

@@ -9,10 +9,10 @@ static class Program
     [STAThread]
     static void Main()
     {
+        ApplicationConfiguration.Initialize();
+
         if (Authentication.GetKey(KeyDecoder.ProductKeyFromRegistry?.Split('-')) is string serialKey)
         {
-            ApplicationConfiguration.Initialize();
-
             Application.Run(new AnTalk(serialKey, new[]
             {
                 Resources.DARK,

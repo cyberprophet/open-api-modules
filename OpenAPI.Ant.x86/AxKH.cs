@@ -13,8 +13,6 @@ namespace ShareInvest;
 
 partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 {
-    public event EventHandler<MsgEventArgs>? Send;
-
     internal AxKH()
     {
         Delay.Instance.Milliseconds = 0x259;
@@ -163,4 +161,5 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             return string.IsNullOrEmpty(serverType) || int.TryParse(serverType, out int mock) && mock != 1;
         }
     }
+    public event EventHandler<MsgEventArgs>? Send;
 }
