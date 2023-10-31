@@ -61,11 +61,50 @@ namespace ShareInvest.Properties {
         }
         
         /// <summary>
+        ///   (아이콘)과(와) 유사한 System.Drawing.Icon 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Icon DARK {
+            get {
+                object obj = ResourceManager.GetObject("DARK", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   (아이콘)과(와) 유사한 System.Drawing.Icon 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Icon DISABLE {
+            get {
+                object obj = ResourceManager.GetObject("DISABLE", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   (아이콘)과(와) 유사한 System.Drawing.Icon 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Icon LOGO {
+            get {
+                object obj = ResourceManager.GetObject("LOGO", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   System.IO.MemoryStream과(와) 유사한 System.IO.UnmanagedMemoryStream 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
         internal static System.IO.UnmanagedMemoryStream MARIO {
             get {
                 return ResourceManager.GetStream("MARIO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   It can be fatal to data when manually terminated.||Do you really want to end it?과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        internal static string WARNING {
+            get {
+                return ResourceManager.GetString("WARNING", resourceCulture);
             }
         }
     }

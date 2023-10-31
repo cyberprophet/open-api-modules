@@ -32,6 +32,24 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2088.41" />
+	  <PackageReference Include="ShareInvest.Delay.Task" Version="1.0.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\SecuritiesModules\Ant.Modules\Ant.Modules.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="AxKHOpenAPILib">
+	    <HintPath>..\..\AxKHOpenAPILib.dll</HintPath>
+	  </Reference>
+	  <Reference Include="KHOpenAPILib">
+	    <HintPath>..\..\KHOpenAPILib.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Compile Update="Properties\Resources.Designer.cs">
 			<DesignTime>True</DesignTime>
 			<AutoGen>True</AutoGen>
