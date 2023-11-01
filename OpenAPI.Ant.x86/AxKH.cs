@@ -7,6 +7,7 @@ using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Services;
 using ShareInvest.Transmission;
 
+using System.Diagnostics;
 using System.Reflection;
 
 namespace ShareInvest;
@@ -19,23 +20,27 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 
         InitializeComponent();
     }
-    internal void CommRqData(TR tr)
+    internal void CommRqData(TR? tr)
     {
+        if (tr?.Value == null)
+        {
+            return;
+        }
         string sScrNo = tr.ScreenNo;
 
         Delay.Instance.RequestTheMission(new Task(() =>
         {
             for (int index = 0; index < tr.Id.Length; index++)
             {
-                axAPI.SetInputValue(tr.Id[index], tr.Value?[index]);
+                axAPI.SetInputValue(tr.Id[index], tr.Value[index]);
             }
             OnReceiveErrMessage(tr.RQName, axAPI.CommRqData(tr.RQName, tr.TrCode, tr.PrevNext, sScrNo));
         }));
         Cache.SaveTemporarily(sScrNo, tr);
     }
     /// <summary>
-    /// KOSPI: 0
-    /// KOSDAQ: 10
+    /// 0.KOSPI
+    /// 10.KOSDAQ
     /// </summary>
     internal void GetCodeListByMarket()
     {
@@ -101,15 +106,29 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 
             foreach (var json in ctor.OnReceiveTrData(axAPI, e))
             {
+                if (json.Length == 1)
+                {
+                    if (int.TryParse(json, out int next))
+                    {
+                        tr.PrevNext = next;
+
+                        Send?.Invoke(this, new TransmissionEventArgs(tr));
+                    }
+                    continue;
+                }
                 Send?.Invoke(this, new JsonMsgEventArgs(tr, json));
             }
+            Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
+            {
+                Title = e.sTrCode,
+                Code = e.sRQName,
+                Screen = e.sScrNo
+            }));
+            return;
         }
-        Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
-        {
-            Title = e.sTrCode,
-            Code = e.sRQName,
-            Screen = e.sScrNo
-        }));
+#if DEBUG
+        Debug.WriteLine(nameof(OnReceiveTrData));
+#endif
     }
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {
