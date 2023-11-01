@@ -4,15 +4,45 @@ using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
 
+using System.Net;
+
 namespace ShareInvest;
 
 partial class AnTalk
 {
+    async Task<int> RequestTransmission(string resource)
+    {
+        if (Talk == null)
+        {
+            return int.MaxValue;
+        }
+        var response = await Talk.ExecuteGetAsync(resource);
+
+        if (HttpStatusCode.OK == response.StatusCode && response.Content?.Replace("\"", string.Empty) is string code)
+        {
+            var tr = code.Length switch
+            {
+                6 => new Opt10081
+                {
+                    Value = new[]
+                    {
+                        code,
+                        DateTime.Now.ToString("yyyyMMdd"),
+                        "1"
+                    },
+                    PrevNext = 0
+                },
+                _ => null
+            };
+            axAPI.CommRqData(tr);
+        }
+        return 0x259;
+    }
     async Task OccursDependingOnConnection(Exception? exception)
     {
         if (Talk != null && exception != null)
         {
-            _ = await Talk.ExecuteAsync(new Entities.Kiwoom.OpenMessage
+            _ = await Talk.ExecutePostAsync(new Entities.Kiwoom.OpenMessage
             {
                 Screen = $"{(Socket != null ? (int)Socket.Hub.State : 0):D4}",
                 Code = Socket?.Hub.State.ToString(),
@@ -26,12 +56,10 @@ partial class AnTalk
     }
     async Task OnReceiveMessage(RealMsgEventArgs e)
     {
-#if DEBUG
-        if (Socket != null && HubConnectionState.Connected == Socket.Hub.State)
+        if (IsAdministrator && HubConnectionState.Connected == Socket?.Hub.State)
         {
             await Socket.Hub.SendAsync(e.Type, e.Key, e.Data);
         }
-#endif
         if (Resources.OPERATION.Equals(e.Type))
         {
             var marketOperation = Utilities.Kiwoom.Operation.Get(e.Data.Split('\t')[0]);
@@ -40,7 +68,7 @@ partial class AnTalk
             {
                 Utilities.Kiwoom.MarketOperation.장시작 => 0xC9,
 
-                Utilities.Kiwoom.MarketOperation.장마감 => await worksWithMarketClose(axAPI),
+                Utilities.Kiwoom.MarketOperation.장마감 => await RequestTransmission(nameof(Opt10081)),
 
                 _ => 0x259
             };
@@ -53,13 +81,19 @@ partial class AnTalk
         {
             return;
         }
+        switch (e.Convey)
+        {
+            case MultiOpt10081 dailyChart:
+                opt10081Collection.Enqueue(dailyChart);
+                return;
+        }
 #if DEBUG
         if (e.Convey is Entities.Kiwoom.OPTKWFID)
         {
             return;
         }
 #endif
-        _ = await Talk.ExecuteAsync(e.Convey);
+        _ = await Talk.ExecutePostAsync(e.Convey);
     }
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
@@ -67,7 +101,7 @@ partial class AnTalk
         {
             e.Message.SerialKey = serialKey;
 
-            _ = await Talk.ExecuteAsync(e.Message);
+            _ = await Talk.ExecutePostAsync(e.Message);
         }
         if (Array.Exists(critCodes, match => match.Equals(e.Message.Screen)))
         {
@@ -102,7 +136,37 @@ partial class AnTalk
 
                 break;
         }
-        _ = await Talk!.ExecuteAsync(e.Securities);
+        _ = await Talk!.ExecutePostAsync(e.Securities);
+    }
+    async Task OnReceiveMessage(TransmissionEventArgs e)
+    {
+        switch (e.Transmission)
+        {
+            case Opt10081 when Talk != null:
+
+                while (opt10081Collection.TryDequeue(out var collection))
+                {
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, collection);
+
+                    var pos = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+
+                    if (HttpStatusCode.OK == response.StatusCode && pos && saveChanges > 0)
+                    {
+                        continue;
+                    }
+                    opt10081Collection.Clear();
+
+                    e.Transmission.PrevNext = opt10081Collection.Count;
+                }
+                break;
+        }
+        if (e.Transmission.PrevNext == 2)
+        {
+            axAPI.CommRqData(e.Transmission);
+
+            return;
+        }
+        Delay.Instance.Milliseconds = await RequestTransmission(e.Transmission.TrCode);
     }
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
@@ -118,6 +182,8 @@ partial class AnTalk
 
                 SecuritiesEventArgs securities => OnReceiveMessage(securities),
 
+                TransmissionEventArgs arg => OnReceiveMessage(arg),
+
                 _ => new Func<Task>(() =>
                 {
                     notifyIcon.Text = "Not Supported.";
@@ -127,12 +193,6 @@ partial class AnTalk
             });
         });
     }
-    readonly Func<AxKH, Task<int>> worksWithMarketClose = axAPI =>
-    {
-        axAPI.GetCodeListByMarket();
-
-        return Task.FromResult(0x259);
-    };
     readonly Func<Entities.Kiwoom.OpenMessage, string> convertMsg = arg =>
     {
         var msg = $"{DateTime.Now:G}\n[{arg.Code}] {arg.Title}({arg.Screen})";
@@ -145,4 +205,5 @@ partial class AnTalk
         "0106"
     };
     readonly CoreWebView webView = new();
+    readonly Queue<MultiOpt10081> opt10081Collection = new();
 }

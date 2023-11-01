@@ -36,4 +36,8 @@ partial class AnTalk
             await Socket.Hub.StartAsync();
         }
     }
+    bool IsAdministrator
+    {
+        get; set;
+    }
 }

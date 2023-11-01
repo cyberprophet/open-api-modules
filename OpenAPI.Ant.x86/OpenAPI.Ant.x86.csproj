@@ -7,7 +7,7 @@
 		<UseWindowsForms>True</UseWindowsForms>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
-		<AssemblyName>ShareInvest.$(MSBuildProjectName)</AssemblyName>
+		<AssemblyName>AnTalk</AssemblyName>
 		<RootNamespace>ShareInvest</RootNamespace>
 		<ApplicationIcon>kiwoom_logo.ico</ApplicationIcon>
 		<PlatformTarget>x86</PlatformTarget>
@@ -17,7 +17,7 @@
 		<Copyright>Copyright ⓒ 2023, ShareInvest Corp.</Copyright>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<Version>0.0.0.2</Version>
+		<Version>0.0.0.3</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
