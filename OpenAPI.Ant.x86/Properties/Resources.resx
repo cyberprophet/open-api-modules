@@ -124,6 +124,9 @@
   <data name="DISABLE" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\disabled_kiwoom_logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="KIWOOM" xml:space="preserve">
+    <value>/hubs/kiwoom</value>
+  </data>
   <data name="LOGO" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\kiwoom_logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

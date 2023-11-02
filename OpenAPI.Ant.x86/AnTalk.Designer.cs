@@ -35,7 +35,7 @@ partial class AnTalk
                 {
                     control.Dispose();
                 }
-                Talk.Dispose();
+                Talk?.Dispose();
 
                 Controls.Clear();
             }

@@ -49,4 +49,10 @@ public static class TrConstructor
     {
         get => Assembly.GetExecutingAssembly();
     }
+    public static bool EventOccursInStock(string? currentPrice)
+    {
+        var now = DateTime.Now;
+
+        return string.IsNullOrEmpty(currentPrice) is false && now.Hour > 5 && now.Hour < 8 && now.DayOfWeek != DayOfWeek.Sunday && now.DayOfWeek != DayOfWeek.Saturday;
+    }
 }

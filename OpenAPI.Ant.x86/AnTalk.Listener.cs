@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
+using Newtonsoft.Json.Linq;
+
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
@@ -75,26 +77,6 @@ partial class AnTalk
             notifyIcon.Text = $"{DateTime.Now:G}\n{Enum.GetName(marketOperation)}";
         }
     }
-    async Task OnReceiveMessage(JsonMsgEventArgs e)
-    {
-        if (e.Convey == null || Talk == null)
-        {
-            return;
-        }
-        switch (e.Convey)
-        {
-            case MultiOpt10081 dailyChart:
-                opt10081Collection.Enqueue(dailyChart);
-                return;
-        }
-#if DEBUG
-        if (e.Convey is Entities.Kiwoom.OPTKWFID)
-        {
-            return;
-        }
-#endif
-        _ = await Talk.ExecutePostAsync(e.Convey);
-    }
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
         if (Talk != null)
@@ -138,6 +120,48 @@ partial class AnTalk
         }
         _ = await Talk!.ExecutePostAsync(e.Securities);
     }
+    async Task OnReceiveMessage(JsonMsgEventArgs e)
+    {
+        switch (e.Convey)
+        {
+            case MultiOpt10081 dailyChart:
+                opt10081Collection.Enqueue(dailyChart);
+                return;
+
+            case Entities.Kiwoom.OPTKWFID o when IsAdministrator is false:
+
+                if (TrConstructor.EventOccursInStock(o.Current) is false)
+                {
+                    return;
+                }
+                var resource = string.Concat(nameof(Opt10081), '/', nameof(TrConstructor.EventOccursInStock));
+
+                var response = await Talk!.ExecuteGetAsync(resource, JToken.FromObject(new
+                {
+                    code = o.Code,
+                    price = char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]
+                }));
+                if (HttpStatusCode.OK == response.StatusCode)
+                {
+                    axAPI.CommRqData(new Opt10081
+                    {
+                        Value = new[]
+                        {
+                            o.Code!,
+                            DateTime.Now.ToString("yyyyMMdd"),
+                            "1"
+                        },
+                        PrevNext = 0
+                    });
+                }
+                return;
+
+            case null:
+
+                return;
+        }
+        _ = await Talk!.ExecutePostAsync(e.Convey);
+    }
     async Task OnReceiveMessage(TransmissionEventArgs e)
     {
         switch (e.Transmission)
@@ -148,9 +172,9 @@ partial class AnTalk
                 {
                     var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, collection);
 
-                    var pos = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
 
-                    if (HttpStatusCode.OK == response.StatusCode && pos && saveChanges > 0)
+                    if (HttpStatusCode.OK == response.StatusCode && positive && saveChanges > 0)
                     {
                         continue;
                     }

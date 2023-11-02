@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Configuration;
 
 using ShareInvest.Hubs.Socket;
 using ShareInvest.Properties;
@@ -45,15 +44,7 @@ partial class AnTalk : Form
             FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Minimized;
 
-            _ = Task.Run(async () =>
-            {
-                string? resource = Authentication.Configuration.GetConnectionString(nameof(resource));
-
-                if (string.IsNullOrEmpty(resource) is false)
-                {
-                    await ConnectingAsync(resource);
-                }
-            });
+            _ = Task.Run(async () => await ConnectingAsync(Resources.KIWOOM));
             return;
         }
         var now = DateTime.Now;
@@ -91,10 +82,14 @@ partial class AnTalk : Form
             {
                 if (Talk != null)
                 {
+#if DEBUG
+                    _ = RequestTransmission(nameof(OpenAPI.Entity.Opt10081));
+#else
                     Process.Start(new ProcessStartInfo("http://share.enterprises")
                     {
                         UseShellExecute = true
                     });
+#endif
                     return;
                 }
                 if (string.IsNullOrEmpty(webView.AccessToken) is false && axAPI.CommConnect())
