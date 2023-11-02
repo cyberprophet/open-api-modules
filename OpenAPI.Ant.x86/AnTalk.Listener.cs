@@ -77,23 +77,21 @@ partial class AnTalk
     }
     async Task OnReceiveMessage(JsonMsgEventArgs e)
     {
-        if (e.Convey == null || Talk == null)
-        {
-            return;
-        }
         switch (e.Convey)
         {
             case MultiOpt10081 dailyChart:
                 opt10081Collection.Enqueue(dailyChart);
                 return;
+
+            case Entities.Kiwoom.OPTKWFID when IsAdministrator is false:
+
+                return;
+
+            case null:
+
+                return;
         }
-#if DEBUG
-        if (e.Convey is Entities.Kiwoom.OPTKWFID)
-        {
-            return;
-        }
-#endif
-        _ = await Talk.ExecutePostAsync(e.Convey);
+        _ = await Talk!.ExecutePostAsync(e.Convey);
     }
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
@@ -148,9 +146,9 @@ partial class AnTalk
                 {
                     var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, collection);
 
-                    var pos = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
 
-                    if (HttpStatusCode.OK == response.StatusCode && pos && saveChanges > 0)
+                    if (HttpStatusCode.OK == response.StatusCode && positive && saveChanges > 0)
                     {
                         continue;
                     }

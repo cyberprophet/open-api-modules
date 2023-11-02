@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 
 namespace ShareInvest.OpenAPI.Entity;
@@ -8,6 +9,11 @@ namespace ShareInvest.OpenAPI.Entity;
 /// <summary>주식일봉차트조회</summary>
 public class MultiOpt10081
 {
+    [NotMapped]
+    public string? Name
+    {
+        get; set;
+    }
     /// <summary>종목코드</summary>
     [DataMember, JsonProperty("종목코드"), StringLength(6), Key]
     public string? Code
