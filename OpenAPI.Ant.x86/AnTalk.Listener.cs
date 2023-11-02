@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
+using Newtonsoft.Json.Linq;
+
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
@@ -75,24 +77,6 @@ partial class AnTalk
             notifyIcon.Text = $"{DateTime.Now:G}\n{Enum.GetName(marketOperation)}";
         }
     }
-    async Task OnReceiveMessage(JsonMsgEventArgs e)
-    {
-        switch (e.Convey)
-        {
-            case MultiOpt10081 dailyChart:
-                opt10081Collection.Enqueue(dailyChart);
-                return;
-
-            case Entities.Kiwoom.OPTKWFID when IsAdministrator is false:
-
-                return;
-
-            case null:
-
-                return;
-        }
-        _ = await Talk!.ExecutePostAsync(e.Convey);
-    }
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
         if (Talk != null)
@@ -135,6 +119,48 @@ partial class AnTalk
                 break;
         }
         _ = await Talk!.ExecutePostAsync(e.Securities);
+    }
+    async Task OnReceiveMessage(JsonMsgEventArgs e)
+    {
+        switch (e.Convey)
+        {
+            case MultiOpt10081 dailyChart:
+                opt10081Collection.Enqueue(dailyChart);
+                return;
+
+            case Entities.Kiwoom.OPTKWFID o when IsAdministrator is false:
+
+                if (TrConstructor.EventOccursInStock(o.Current) is false)
+                {
+                    return;
+                }
+                var resource = string.Concat(nameof(Opt10081), '/', nameof(TrConstructor.EventOccursInStock));
+
+                var response = await Talk!.ExecuteGetAsync(resource, JToken.FromObject(new
+                {
+                    code = o.Code,
+                    price = char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]
+                }));
+                if (HttpStatusCode.OK == response.StatusCode)
+                {
+                    axAPI.CommRqData(new Opt10081
+                    {
+                        Value = new[]
+                        {
+                            o.Code!,
+                            DateTime.Now.ToString("yyyyMMdd"),
+                            "1"
+                        },
+                        PrevNext = 0
+                    });
+                }
+                return;
+
+            case null:
+
+                return;
+        }
+        _ = await Talk!.ExecutePostAsync(e.Convey);
     }
     async Task OnReceiveMessage(TransmissionEventArgs e)
     {
