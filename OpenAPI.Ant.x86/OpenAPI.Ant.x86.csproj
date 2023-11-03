@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net7.0-windows10.0.17763.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>True</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
+		<AssemblyName>AnTalk</AssemblyName>
+		<RootNamespace>ShareInvest</RootNamespace>
+		<ApplicationIcon>kiwoom_logo.ico</ApplicationIcon>
+		<PlatformTarget>x86</PlatformTarget>
+		<Authors>cyberprophet</Authors>
+		<Company>ShareInvest Corp.</Company>
+		<Product>AnTalk</Product>
+		<Copyright>Copyright ⓒ 2023, ShareInvest Corp.</Copyright>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Version>0.0.0.3</Version>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="kiwoom_logo.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2088.41" />
+		<PackageReference Include="ShareInvest.Delay.Task" Version="1.0.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\SecuritiesModules\Ant.Modules\Ant.Modules.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="AxKHOpenAPILib">
+			<HintPath>..\..\AxKHOpenAPILib.dll</HintPath>
+		</Reference>
+		<Reference Include="KHOpenAPILib">
+			<HintPath>..\..\KHOpenAPILib.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+</Project>
