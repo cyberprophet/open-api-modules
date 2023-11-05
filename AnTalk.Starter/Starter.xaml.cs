@@ -111,7 +111,7 @@ public partial class Starter : Window
                         sp.PlaySync();
                     }
                 }
-                await webView.InitializeCoreWebView2Async();
+                Visibility = (Visibility)await webView.InitializeCoreWebView2Async();
             }
             notifyIcon.Icon = Properties.Resources.T0;
         };
@@ -120,8 +120,6 @@ public partial class Starter : Window
         webView = new CoreWebView(webView2);
 
         timer.Start();
-
-        Visibility = Visibility.Hidden;
     }
     void OnStateChanged(object sender, EventArgs e)
     {

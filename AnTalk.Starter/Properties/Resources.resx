@@ -164,6 +164,6 @@
     <value>It can be fatal to data when manually terminated.||Do you really want to end it?</value>
   </data>
   <data name="WD86" xml:space="preserve">
-    <value>C:\Program Files (x86)\Algorithmic-Trading</value>
+    <value>x86</value>
   </data>
 </root>

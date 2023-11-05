@@ -203,7 +203,7 @@ namespace ShareInvest.Properties {
         }
         
         /// <summary>
-        ///   C:\Program Files (x86)\Algorithmic-Trading과(와) 유사한 지역화된 문자열을 찾습니다.
+        ///   x86과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         internal static string WD86 {
             get {
