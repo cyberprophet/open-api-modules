@@ -70,6 +70,15 @@ namespace ShareInvest.Properties {
         }
         
         /// <summary>
+        ///   AnTalk과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        internal static string ANTALK {
+            get {
+                return ResourceManager.GetString("ANTALK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   System.IO.MemoryStream과(와) 유사한 System.IO.UnmanagedMemoryStream 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
         internal static System.IO.UnmanagedMemoryStream BINGO {
@@ -84,6 +93,15 @@ namespace ShareInvest.Properties {
         internal static string EXIT {
             get {
                 return ResourceManager.GetString("EXIT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   publish과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        internal static string PUBLISH {
+            get {
+                return ResourceManager.GetString("PUBLISH", resourceCulture);
             }
         }
         
@@ -181,6 +199,15 @@ namespace ShareInvest.Properties {
         internal static string WARNING {
             get {
                 return ResourceManager.GetString("WARNING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   C:\Program Files (x86)\Algorithmic-Trading과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        internal static string WD86 {
+            get {
+                return ResourceManager.GetString("WD86", resourceCulture);
             }
         }
     }

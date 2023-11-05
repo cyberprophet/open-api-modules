@@ -94,15 +94,22 @@ public partial class Starter : Window
                 {
                     notifyIcon.Icon = icons[DateTime.Now.Second % icons.Length];
 
+                    if (Update.BeOutOperation)
+                    {
+                        timer.Interval = new TimeSpan(1, 1, 1, 0xC);
+
+                        timer.Interval = await Update.RunAsync();
+                    }
                     return;
                 }
                 if (string.IsNullOrEmpty(webView.AccessToken) is false)
                 {
                     using (var sp = new SoundPlayer(Properties.Resources.BINGO))
                     {
+                        Update = new Update(webView.Url, webView.AccessToken);
+
                         sp.PlaySync();
                     }
-                    Update = new Update(webView.Url, webView.AccessToken);
                 }
                 await webView.InitializeCoreWebView2Async();
             }
