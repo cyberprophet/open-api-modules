@@ -4,24 +4,21 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net7.0-windows10.0.17763.0</TargetFramework>
 		<Nullable>enable</Nullable>
-		<UseWindowsForms>True</UseWindowsForms>
-		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>True</UseWPF>
 		<SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
-		<AssemblyName>AnTalk</AssemblyName>
+		<UseWindowsForms>True</UseWindowsForms>
 		<RootNamespace>ShareInvest</RootNamespace>
-		<ApplicationIcon>kiwoom_logo.ico</ApplicationIcon>
-		<PlatformTarget>x86</PlatformTarget>
+		<ApplicationIcon>analytics.ico</ApplicationIcon>
 		<Authors>cyberprophet</Authors>
 		<Company>ShareInvest Corp.</Company>
 		<Product>AnTalk</Product>
 		<Copyright>Copyright ⓒ 2023, ShareInvest Corp.</Copyright>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<Version>0.0.0.4</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="kiwoom_logo.ico" />
+		<Content Include="analytics.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,20 +30,10 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2088.41" />
-		<PackageReference Include="ShareInvest.Delay.Task" Version="1.0.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\SecuritiesModules\Ant.Modules\Ant.Modules.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="AxKHOpenAPILib">
-			<HintPath>..\..\AxKHOpenAPILib.dll</HintPath>
-		</Reference>
-		<Reference Include="KHOpenAPILib">
-			<HintPath>..\..\KHOpenAPILib.dll</HintPath>
-		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
