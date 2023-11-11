@@ -7,7 +7,7 @@ namespace ShareInvest;
 static class Program
 {
     [STAThread]
-    static void Main()
+    static async Task Main()
     {
         ApplicationConfiguration.Initialize();
 
@@ -19,8 +19,10 @@ static class Program
                 Resources.LOGO,
                 Resources.DISABLE
             }));
-            GC.Collect();
+            await Task.Delay(Random.Shared.Next(0x400 * 3, 0x400 * 7));
         }
+        GC.Collect();
+
         Process.GetCurrentProcess().Kill();
     }
 }
