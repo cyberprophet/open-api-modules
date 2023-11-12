@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
 using ShareInvest.Hubs.Socket;
+using ShareInvest.Observers;
+using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
 
 using System.Media;
@@ -29,6 +31,24 @@ partial class AnTalk
         }
         if (HubConnectionState.Disconnected == Socket.Hub.State)
         {
+            Socket.Send += (sender, args) =>
+            {
+                switch (args)
+                {
+                    case AssetsEventArgs e:
+                        axAPI.CommRqData(new OPW00004
+                        {
+                            Value = new[] { e.AccNo, string.Empty, "0", "00" },
+                            PrevNext = 0
+                        });
+                        axAPI.CommRqData(new Opw00005
+                        {
+                            Value = new[] { e.AccNo, string.Empty, "00" },
+                            PrevNext = 0
+                        });
+                        return;
+                }
+            };
             Socket.Hub.Closed += OccursDependingOnConnection;
             Socket.Hub.ServerTimeout = TimeSpan.FromSeconds(0x40);
             Socket.Hub.HandshakeTimeout = TimeSpan.FromSeconds(0x20);
