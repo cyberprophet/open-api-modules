@@ -38,31 +38,6 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }));
         Cache.SaveTemporarily(sScrNo, tr);
     }
-    /// <summary>
-    /// 0.KOSPI
-    /// 10.KOSDAQ
-    /// </summary>
-    internal void GetCodeListByMarket()
-    {
-        List<string> codeListByMarket = new(axAPI.GetCodeListByMarket("0").Split(';').OrderBy(o => Guid.NewGuid()));
-
-        codeListByMarket.AddRange(axAPI.GetCodeListByMarket("10").Split(';').OrderBy(o => Guid.NewGuid()));
-
-        foreach (var tr in TrConstructor.GetInventoryOnConditions(codeListByMarket))
-        {
-            if (tr.Value != null)
-            {
-                var nCodeCount = tr.PrevNext;
-
-                tr.PrevNext = 0;
-
-                Delay.Instance.RequestTheMission(new Task(() =>
-                {
-                    OnReceiveErrMessage(tr.RQName, axAPI.CommKwRqData(tr.Value[0], tr.PrevNext, nCodeCount, 0, tr.RQName, tr.ScreenNo));
-                }));
-            }
-        }
-    }
     internal bool CommConnect()
     {
         axAPI.OnReceiveMsg += OnReceiveMsg;
@@ -169,6 +144,31 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 SecuritiesId = id,
                 UserName = name
             }));
+        }
+    }
+    /// <summary>
+    /// 0.KOSPI
+    /// 10.KOSDAQ
+    /// </summary>
+    void GetCodeListByMarket()
+    {
+        List<string> codeListByMarket = new(axAPI.GetCodeListByMarket("0").Split(';').OrderBy(o => Guid.NewGuid()));
+
+        codeListByMarket.AddRange(axAPI.GetCodeListByMarket("10").Split(';').OrderBy(o => Guid.NewGuid()));
+
+        foreach (var tr in TrConstructor.GetInventoryOnConditions(codeListByMarket))
+        {
+            if (tr.Value != null)
+            {
+                var nCodeCount = tr.PrevNext;
+
+                tr.PrevNext = 0;
+
+                Delay.Instance.RequestTheMission(new Task(() =>
+                {
+                    OnReceiveErrMessage(tr.RQName, axAPI.CommKwRqData(tr.Value[0], tr.PrevNext, nCodeCount, 0, tr.RQName, tr.ScreenNo));
+                }));
+            }
         }
     }
     bool ServerType

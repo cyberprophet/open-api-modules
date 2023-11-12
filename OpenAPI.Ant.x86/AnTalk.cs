@@ -63,12 +63,16 @@ partial class AnTalk : Form
         {
             return;
         }
-        _ = BeginInvoke(() =>
+        _ = BeginInvoke(async () =>
         {
             if (IsExecuteTheScheduledTask(now) && axAPI.CommConnect())
             {
                 Talk = new AnTalkClient(webView.Url, webView.AccessToken);
 
+                if (Socket != null)
+                {
+                    await Socket.AddToGroupAsync(serialKey);
+                }
                 Delay.Instance.Run();
             }
         });
@@ -78,24 +82,24 @@ partial class AnTalk : Form
     {
         if (reference.Name.Equals(e.ClickedItem?.Name))
         {
-            _ = BeginInvoke(() =>
+            _ = BeginInvoke(async () =>
             {
                 if (Talk != null)
                 {
-#if DEBUG
-                    _ = RequestTransmission(nameof(OpenAPI.Entity.Opt10081));
-#else
                     Process.Start(new ProcessStartInfo("http://share.enterprises")
                     {
                         UseShellExecute = true
                     });
-#endif
                     return;
                 }
                 if (string.IsNullOrEmpty(webView.AccessToken) is false && axAPI.CommConnect())
                 {
                     Talk = new AnTalkClient(webView.Url, webView.AccessToken);
 
+                    if (Socket != null)
+                    {
+                        await Socket.AddToGroupAsync(serialKey);
+                    }
                     Delay.Instance.Run();
                 }
             });
