@@ -25,6 +25,8 @@ partial class AnTalk
             {
                 if (notifyIcon.Icon is not null)
                 {
+                    _ = Socket.RemoveFromGroupAsync(serialKey);
+
                     notifyIcon.Icon.Dispose();
                 }
                 notifyIcon.Dispose();
