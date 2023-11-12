@@ -1,5 +1,6 @@
 ﻿using ShareInvest.OpenAPI.Entity;
 
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -44,6 +45,10 @@ public static class TrConstructor
                 };
             }
         }
+    }
+    public static CultureInfo Culture
+    {
+        get => new("ko-KR");
     }
     public static Assembly Assembly
     {

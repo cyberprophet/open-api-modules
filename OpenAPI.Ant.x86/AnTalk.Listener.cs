@@ -64,13 +64,13 @@ partial class AnTalk
         }
         if (Resources.OPERATION.Equals(e.Type))
         {
-            var marketOperation = Utilities.Kiwoom.Operation.Get(e.Data.Split('\t')[0]);
+            var marketOperation = Operation.Get(e.Data.Split('\t')[0]);
 
             Delay.Instance.Milliseconds = marketOperation switch
             {
-                Utilities.Kiwoom.MarketOperation.장시작 => 0xC9,
+                MarketOperation.장시작 => 0xC9,
 
-                Utilities.Kiwoom.MarketOperation.장마감 => await RequestTransmission(nameof(Opt10081)),
+                MarketOperation.장마감 => await RequestTransmission(nameof(Opt10081)),
 
                 _ => 0x259
             };

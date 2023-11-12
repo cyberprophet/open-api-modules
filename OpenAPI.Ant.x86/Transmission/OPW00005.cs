@@ -17,7 +17,7 @@ class OPW00005 : Constructor
         var response = OnReceiveTrSingleData(axAPI, e);
 
         response[Id[0]] = Value[0];
-        response[nameof(AccOPW00005.Date)] = DateTime.Now.ToString("d", Culture);
+        response[nameof(AccOPW00005.Date)] = DateTime.Now.ToString("d", TrConstructor.Culture);
 
         yield return JsonConvert.SerializeObject(response);
 
@@ -28,7 +28,7 @@ class OPW00005 : Constructor
                 continue;
             }
             storage[Id[0]] = Value[0];
-            storage[nameof(BalOPW00005.Date)] = DateTime.Now.ToString("d", Culture);
+            storage[nameof(BalOPW00005.Date)] = DateTime.Now.ToString("d", TrConstructor.Culture);
 
             yield return JsonConvert.SerializeObject(storage);
         }

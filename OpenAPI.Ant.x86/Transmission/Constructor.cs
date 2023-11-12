@@ -2,16 +2,10 @@
 
 using Newtonsoft.Json;
 
-using System.Globalization;
-
 namespace ShareInvest.Transmission;
 
 class Constructor
 {
-    protected internal static CultureInfo Culture
-    {
-        get => new("ko-KR");
-    }
     protected internal Dictionary<string, string> OnReceiveTrSingleData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
         Dictionary<string, string> response = new();
