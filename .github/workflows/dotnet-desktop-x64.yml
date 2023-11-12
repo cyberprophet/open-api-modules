@@ -1,0 +1,53 @@
+name: KIWOOM SECURITIES OPEN API
+
+on:
+  push:
+    branches: [ 'dev' ]
+    
+    paths:
+      - 'OpenAPI.Ant.x86/**'
+
+jobs:
+  build:
+
+    env:
+      working-directory: ./OpenAPI.Ant.x86
+      
+    strategy:
+      matrix:
+        targetplatform: [x86]
+        dotnet-version: ['6.0.x', '7.0.x']
+
+    runs-on: windows-latest
+    
+    steps:
+    
+    - uses: actions/checkout@v3
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Display .NET version
+      run: dotnet --version
+      working-directory: ${{ env.working-directory }}
+      
+    - name: Install dependencies
+      run: dotnet restore OpenAPI.Ant.x86.csproj
+      working-directory: ${{ env.working-directory }}
+      
+    - name: Execute unit tests
+      run: dotnet test --logger trx --results-directory "server-results-${{ matrix.targetplatform }}-${{ matrix.dotnet-version }}"
+      working-directory: ${{ env.working-directory }}
+    
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v3      
+      with:
+        name: dotnet-results-${{ matrix.targetplatform }}-${{ matrix.dotnet-version }}
+        path: ./OpenAPI.Ant.x86-results-${{ matrix.targetplatform }}-${{ matrix.dotnet-version }}
+        
+      if: ${{ always() }}
