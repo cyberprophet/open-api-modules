@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Media;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -97,6 +98,10 @@ public partial class Starter : Window
                     if (Update.BeOutOperation)
                     {
                         timer.Interval = new TimeSpan(1, 1, 1, 0xC);
+
+                        webView.Reload();
+
+                        await Task.Delay(Random.Shared.Next(5 * 0x400, 0xA * 0x400));
 
                         timer.Interval = await Update.RunAsync();
                     }
