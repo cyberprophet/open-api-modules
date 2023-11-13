@@ -102,16 +102,7 @@ partial class AnTalk
         switch (e.Securities.AccNo[^2..].CompareTo("31"))
         {
             case < 0:
-                axAPI.CommRqData(new OPW00004
-                {
-                    Value = new[] { e.Securities.AccNo, string.Empty, "0", "00" },
-                    PrevNext = 0
-                });
-                axAPI.CommRqData(new Opw00005
-                {
-                    Value = new[] { e.Securities.AccNo, string.Empty, "00" },
-                    PrevNext = 0
-                });
+                CheckOneSAccount(e.Securities.AccNo);
                 break;
 
             case 0:
