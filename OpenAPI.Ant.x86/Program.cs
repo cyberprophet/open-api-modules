@@ -19,10 +19,8 @@ static class Program
                 Resources.LOGO,
                 Resources.DISABLE
             }));
-            Thread.Sleep(Random.Shared.Next(0x400 * 3, 0x400 * 7));
+            GC.Collect();
         }
-        GC.Collect();
-
         Process.GetCurrentProcess().Kill();
     }
 }

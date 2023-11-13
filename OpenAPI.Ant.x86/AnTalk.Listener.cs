@@ -2,6 +2,7 @@
 
 using Newtonsoft.Json.Linq;
 
+using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
@@ -102,16 +103,7 @@ partial class AnTalk
         switch (e.Securities.AccNo[^2..].CompareTo("31"))
         {
             case < 0:
-                axAPI.CommRqData(new OPW00004
-                {
-                    Value = new[] { e.Securities.AccNo, string.Empty, "0", "00" },
-                    PrevNext = 0
-                });
-                axAPI.CommRqData(new Opw00005
-                {
-                    Value = new[] { e.Securities.AccNo, string.Empty, "00" },
-                    PrevNext = 0
-                });
+                CheckOneSAccount(e.Securities.AccNo);
                 break;
 
             case 0:
@@ -192,6 +184,15 @@ partial class AnTalk
         }
         Delay.Instance.Milliseconds = await RequestTransmission(e.Transmission.TrCode);
     }
+    async Task OnReceiveMessage(ChejanEventArgs e)
+    {
+        if (e.Convey is Chejan chejan && Talk != null)
+        {
+            chejan.Lookup = DateTime.Now.Ticks;
+
+            _ = await Talk.ExecutePostAsync(e.Convey);
+        }
+    }
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
         _ = BeginInvoke(async () =>
@@ -199,6 +200,8 @@ partial class AnTalk
             await (e switch
             {
                 RealMsgEventArgs rMsg => OnReceiveMessage(rMsg),
+
+                ChejanEventArgs cjMsg => OnReceiveMessage(cjMsg),
 
                 JsonMsgEventArgs json => OnReceiveMessage(json),
 
