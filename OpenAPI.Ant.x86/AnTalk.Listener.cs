@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
+using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
@@ -22,21 +23,12 @@ partial class AnTalk
 
         if (HttpStatusCode.OK == response.StatusCode && response.Content?.Replace("\"", string.Empty) is string code)
         {
-            var tr = code.Length switch
+            switch (resource)
             {
-                6 => new Opt10081
-                {
-                    Value = new[]
-                    {
-                        code,
-                        DateTime.Now.ToString("yyyyMMdd"),
-                        "1"
-                    },
-                    PrevNext = 0
-                },
-                _ => null
-            };
-            axAPI.CommRqData(tr);
+                case nameof(Transmission.Opt10081):
+                    LookupDailyChart(code);
+                    break;
+            }
         }
         return 0x259;
     }
@@ -64,13 +56,13 @@ partial class AnTalk
         }
         if (Resources.OPERATION.Equals(e.Type))
         {
-            var marketOperation = Utilities.Kiwoom.Operation.Get(e.Data.Split('\t')[0]);
+            var marketOperation = Operation.Get(e.Data.Split('\t')[0]);
 
             Delay.Instance.Milliseconds = marketOperation switch
             {
-                Utilities.Kiwoom.MarketOperation.장시작 => 0xC9,
+                MarketOperation.장시작 => 0xC9,
 
-                Utilities.Kiwoom.MarketOperation.장마감 => await RequestTransmission(nameof(Opt10081)),
+                MarketOperation.장마감 => await RequestTransmission(nameof(Opt10081)),
 
                 _ => 0x259
             };
@@ -79,11 +71,11 @@ partial class AnTalk
     }
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
-        if (Talk != null)
+        if (Socket != null)
         {
             e.Message.SerialKey = serialKey;
 
-            _ = await Talk.ExecutePostAsync(e.Message);
+            await Socket.Hub.SendAsync(e.Message.GetType().Name, JsonConvert.SerializeObject(e.Message));
         }
         if (Array.Exists(critCodes, match => match.Equals(e.Message.Screen)))
         {
@@ -102,16 +94,7 @@ partial class AnTalk
         switch (e.Securities.AccNo[^2..].CompareTo("31"))
         {
             case < 0:
-                axAPI.CommRqData(new OPW00004
-                {
-                    Value = new[] { e.Securities.AccNo, string.Empty, "0", "00" },
-                    PrevNext = 0
-                });
-                axAPI.CommRqData(new Opw00005
-                {
-                    Value = new[] { e.Securities.AccNo, string.Empty, "00" },
-                    PrevNext = 0
-                });
+                CheckOneSAccount(e.Securities.AccNo);
                 break;
 
             case 0:
@@ -134,26 +117,7 @@ partial class AnTalk
                 {
                     return;
                 }
-                var resource = string.Concat(nameof(Opt10081), '/', nameof(TrConstructor.EventOccursInStock));
-
-                var response = await Talk!.ExecuteGetAsync(resource, JToken.FromObject(new
-                {
-                    code = o.Code,
-                    price = char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]
-                }));
-                if (HttpStatusCode.OK == response.StatusCode)
-                {
-                    axAPI.CommRqData(new Opt10081
-                    {
-                        Value = new[]
-                        {
-                            o.Code!,
-                            DateTime.Now.ToString("yyyyMMdd"),
-                            "1"
-                        },
-                        PrevNext = 0
-                    });
-                }
+                await Socket!.Hub.SendAsync(nameof(TrConstructor.EventOccursInStock), o.Code, char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]);
                 return;
 
             case null:
@@ -192,6 +156,15 @@ partial class AnTalk
         }
         Delay.Instance.Milliseconds = await RequestTransmission(e.Transmission.TrCode);
     }
+    async Task OnReceiveMessage(ChejanEventArgs e)
+    {
+        if (e.Convey is Chejan chejan && Talk != null)
+        {
+            chejan.Lookup = DateTime.Now.Ticks;
+
+            _ = await Talk.ExecutePostAsync(e.Convey);
+        }
+    }
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
         _ = BeginInvoke(async () =>
@@ -199,6 +172,8 @@ partial class AnTalk
             await (e switch
             {
                 RealMsgEventArgs rMsg => OnReceiveMessage(rMsg),
+
+                ChejanEventArgs cjMsg => OnReceiveMessage(cjMsg),
 
                 JsonMsgEventArgs json => OnReceiveMessage(json),
 
@@ -217,7 +192,7 @@ partial class AnTalk
             });
         });
     }
-    readonly Func<Entities.Kiwoom.OpenMessage, string> convertMsg = arg =>
+    readonly Func<OpenMessage, string> convertMsg = arg =>
     {
         var msg = $"{DateTime.Now:G}\n[{arg.Code}] {arg.Title}({arg.Screen})";
 

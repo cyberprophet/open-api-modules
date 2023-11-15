@@ -1,5 +1,7 @@
 ﻿using AxKHOpenAPILib;
 
+using Newtonsoft.Json;
+
 using ShareInvest.Entities;
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
@@ -42,6 +44,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
     {
         axAPI.OnReceiveMsg += OnReceiveMsg;
         axAPI.OnReceiveRealData += OnReceiveRealData;
+        axAPI.OnReceiveChejanData += OnReceiveChejanData;
         axAPI.OnReceiveTrData += OnReceiveTrData;
         axAPI.OnEventConnect += OnEventConnect;
 
@@ -104,6 +107,46 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 #if DEBUG
         Debug.WriteLine(nameof(OnReceiveTrData));
 #endif
+    }
+    void OnReceiveChejanData(object _, _DKHOpenAPIEvents_OnReceiveChejanDataEvent e)
+    {
+        if (e.sGubun.Length != 1 && Enum.IsDefined(typeof(ChejanType), (int)e.sGubun[0]) is false)
+        {
+            return;
+        }
+        Type receiverType = typeof(Chejan);
+
+        var receiver = new Dictionary<string, string>
+        {
+            { nameof(Chejan.Date), DateTime.Now.ToString("d", TrConstructor.Culture) }
+        };
+        switch (Enum.ToObject(typeof(ChejanType), (int)e.sGubun[0]))
+        {
+            case ChejanType.주문체결:
+                foreach (var cs in Enum.GetValues<Conclusion>())
+                {
+                    receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
+                }
+                receiverType = typeof(ChejanConclusion);
+                break;
+
+            case ChejanType.잔고:
+                foreach (var cs in Enum.GetValues<Balance>())
+                {
+                    receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
+                }
+                receiverType = typeof(ChejanBalance);
+                break;
+
+            case ChejanType.파생잔고:
+                foreach (var cs in Enum.GetValues<Derivatives>())
+                {
+                    receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
+                }
+                receiverType = typeof(ChejanDerivatives);
+                break;
+        }
+        Send?.Invoke(this, new ChejanEventArgs(receiverType, JsonConvert.SerializeObject(receiver)));
     }
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {

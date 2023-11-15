@@ -13,16 +13,14 @@ static class Program
 
         if (Authentication.GetKey(KeyDecoder.ProductKeyFromRegistry?.Split('-')) is string serialKey)
         {
-            Application.Run(new AnTalk(serialKey, new[]
+            Application.Run(new AnTalk(new AxKH(), serialKey, new[]
             {
                 Resources.DARK,
                 Resources.LOGO,
                 Resources.DISABLE
             }));
-            Thread.Sleep(Random.Shared.Next(0x400 * 3, 0x400 * 7));
+            GC.Collect();
         }
-        GC.Collect();
-
         Process.GetCurrentProcess().Kill();
     }
 }

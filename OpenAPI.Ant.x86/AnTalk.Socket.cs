@@ -36,16 +36,11 @@ partial class AnTalk
                 switch (args)
                 {
                     case AssetsEventArgs e:
-                        axAPI.CommRqData(new OPW00004
-                        {
-                            Value = new[] { e.AccNo, string.Empty, "0", "00" },
-                            PrevNext = 0
-                        });
-                        axAPI.CommRqData(new Opw00005
-                        {
-                            Value = new[] { e.AccNo, string.Empty, "00" },
-                            PrevNext = 0
-                        });
+                        CheckOneSAccount(e.AccNo);
+                        return;
+
+                    case OccursInStockEventArgs stock:
+                        LookupDailyChart(stock.Code);
                         return;
                 }
             };
@@ -55,6 +50,27 @@ partial class AnTalk
 
             await Socket.Hub.StartAsync();
         }
+    }
+    void CheckOneSAccount(string accNo)
+    {
+        axAPI.CommRqData(new OPW00004
+        {
+            PrevNext = 0,
+            Value = new[] { accNo, string.Empty, "0", "00" }
+        });
+        axAPI.CommRqData(new Opw00005
+        {
+            PrevNext = 0,
+            Value = new[] { accNo, string.Empty, "00" }
+        });
+    }
+    void LookupDailyChart(string code)
+    {
+        axAPI.CommRqData(new Opt10081
+        {
+            PrevNext = 0,
+            Value = new[] { code, DateTime.Now.ToString("yyyyMMdd"), "1" }
+        });
     }
     bool IsAdministrator
     {
