@@ -13,7 +13,7 @@ static class Program
 
         if (Authentication.GetKey(KeyDecoder.ProductKeyFromRegistry?.Split('-')) is string serialKey)
         {
-            Application.Run(new AnTalk(serialKey, new[]
+            Application.Run(new AnTalk(new AxKH(), serialKey, new[]
             {
                 Resources.DARK,
                 Resources.LOGO,

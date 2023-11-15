@@ -9,13 +9,13 @@ namespace ShareInvest;
 
 partial class AnTalk : Form
 {
-    internal AnTalk(string serialKey, Icon[] icons)
+    internal AnTalk(AxKH axAPI, string serialKey, Icon[] icons)
     {
         this.icons = icons;
         this.serialKey = serialKey;
 
         InitializeComponent();
-        InitializeComponent(axAPI = new AxKH());
+        InitializeComponent(this.axAPI = axAPI);
     }
     bool IsExecuteTheScheduledTask(DateTime now)
     {

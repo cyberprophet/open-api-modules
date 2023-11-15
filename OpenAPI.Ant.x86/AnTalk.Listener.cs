@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
-using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
@@ -23,21 +23,12 @@ partial class AnTalk
 
         if (HttpStatusCode.OK == response.StatusCode && response.Content?.Replace("\"", string.Empty) is string code)
         {
-            var tr = code.Length switch
+            switch (resource)
             {
-                6 => new Opt10081
-                {
-                    Value = new[]
-                    {
-                        code,
-                        DateTime.Now.ToString("yyyyMMdd"),
-                        "1"
-                    },
-                    PrevNext = 0
-                },
-                _ => null
-            };
-            axAPI.CommRqData(tr);
+                case nameof(Transmission.Opt10081):
+                    LookupDailyChart(code);
+                    break;
+            }
         }
         return 0x259;
     }
@@ -80,11 +71,11 @@ partial class AnTalk
     }
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
-        if (Talk != null)
+        if (Socket != null)
         {
             e.Message.SerialKey = serialKey;
 
-            _ = await Talk.ExecutePostAsync(e.Message);
+            await Socket.Hub.SendAsync(e.Message.GetType().Name, JsonConvert.SerializeObject(e.Message));
         }
         if (Array.Exists(critCodes, match => match.Equals(e.Message.Screen)))
         {
@@ -126,26 +117,7 @@ partial class AnTalk
                 {
                     return;
                 }
-                var resource = string.Concat(nameof(Opt10081), '/', nameof(TrConstructor.EventOccursInStock));
-
-                var response = await Talk!.ExecuteGetAsync(resource, JToken.FromObject(new
-                {
-                    code = o.Code,
-                    price = char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]
-                }));
-                if (HttpStatusCode.OK == response.StatusCode)
-                {
-                    axAPI.CommRqData(new Opt10081
-                    {
-                        Value = new[]
-                        {
-                            o.Code!,
-                            DateTime.Now.ToString("yyyyMMdd"),
-                            "1"
-                        },
-                        PrevNext = 0
-                    });
-                }
+                await Socket!.Hub.SendAsync(nameof(TrConstructor.EventOccursInStock), o.Code, char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]);
                 return;
 
             case null:
@@ -220,7 +192,7 @@ partial class AnTalk
             });
         });
     }
-    readonly Func<Entities.Kiwoom.OpenMessage, string> convertMsg = arg =>
+    readonly Func<OpenMessage, string> convertMsg = arg =>
     {
         var msg = $"{DateTime.Now:G}\n[{arg.Code}] {arg.Title}({arg.Screen})";
 
