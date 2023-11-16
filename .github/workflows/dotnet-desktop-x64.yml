@@ -6,6 +6,7 @@ on:
     
     paths:
       - 'OpenAPI.Ant.x86/**'
+      - 'AnTalk.Starter/**'
 
 jobs:
   build:
@@ -16,7 +17,7 @@ jobs:
     strategy:
       matrix:
         targetplatform: [x86]
-        dotnet-version: [ '6.0.x', '7.0.x', '8.0.x' ]
+        dotnet-version: [ '8.0.x' ]
 
     runs-on: windows-latest
     
