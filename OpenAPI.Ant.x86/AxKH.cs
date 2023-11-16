@@ -114,20 +114,18 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         {
             return;
         }
-        Type receiverType = typeof(Chejan);
-
+        var chejanType = Enum.ToObject(typeof(ChejanType), (int)e.sGubun[0]);
         var receiver = new Dictionary<string, string>
         {
             { nameof(Chejan.Date), DateTime.Now.ToString("d", TrConstructor.Culture) }
         };
-        switch (Enum.ToObject(typeof(ChejanType), (int)e.sGubun[0]))
+        switch (chejanType)
         {
             case ChejanType.주문체결:
                 foreach (var cs in Enum.GetValues<Conclusion>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
                 }
-                receiverType = typeof(ChejanConclusion);
                 break;
 
             case ChejanType.잔고:
@@ -135,7 +133,6 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
                 }
-                receiverType = typeof(ChejanBalance);
                 break;
 
             case ChejanType.파생잔고:
@@ -143,10 +140,12 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
                 }
-                receiverType = typeof(ChejanDerivatives);
                 break;
         }
-        Send?.Invoke(this, new ChejanEventArgs(receiverType, JsonConvert.SerializeObject(receiver)));
+        if (Enum.GetName((ChejanType)chejanType) is string methodName)
+        {
+            Send?.Invoke(this, new TrMsgEventArgs(methodName, JsonConvert.SerializeObject(receiver)));
+        }
     }
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {

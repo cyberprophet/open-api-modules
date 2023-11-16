@@ -30,3 +30,8 @@ public enum Balance
     담보대출수량 = 959,
     ExtraItem = 924
 }
+public enum OrderStatus
+{
+    매도 = 1,
+    매수 = 2
+}
