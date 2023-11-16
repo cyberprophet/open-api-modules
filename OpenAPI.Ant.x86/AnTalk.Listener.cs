@@ -165,6 +165,13 @@ partial class AnTalk
             _ = await Talk.ExecutePostAsync(e.Convey);
         }
     }
+    async Task OnReceiveMessage(TrMsgEventArgs e)
+    {
+        if (Socket != null)
+        {
+            await Socket.Hub.SendAsync(e.HubMethodName, e.Json);
+        }
+    }
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
         _ = BeginInvoke(async () =>
@@ -172,6 +179,8 @@ partial class AnTalk
             await (e switch
             {
                 RealMsgEventArgs rMsg => OnReceiveMessage(rMsg),
+
+                TrMsgEventArgs cMsg => OnReceiveMessage(cMsg),
 
                 ChejanEventArgs cjMsg => OnReceiveMessage(cjMsg),
 
