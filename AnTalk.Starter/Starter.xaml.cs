@@ -33,15 +33,15 @@ public partial class Starter : Window
                 Text = Properties.Resources.EXIT
             }
         });
-        icons = new[]
-        {
+        icons =
+        [
             Properties.Resources.T1,
             Properties.Resources.T2,
             Properties.Resources.T3,
             Properties.Resources.T4,
             Properties.Resources.T5,
             Properties.Resources.T6
-        };
+        ];
         notifyIcon = new System.Windows.Forms.NotifyIcon
         {
             ContextMenuStrip = menu,
@@ -99,9 +99,11 @@ public partial class Starter : Window
                     {
                         timer.Interval = new TimeSpan(1, 1, 1, 0xC);
 
+                        await Task.Delay(Random.Shared.Next(5 * 0x400, 0xA * 0x400));
+
                         webView.Reload();
 
-                        await Task.Delay(Random.Shared.Next(5 * 0x400, 0xA * 0x400));
+                        await Task.Delay(0x400);
 
                         timer.Interval = await Update.RunAsync();
                     }
