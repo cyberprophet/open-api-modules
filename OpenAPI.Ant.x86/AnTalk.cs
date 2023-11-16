@@ -80,7 +80,7 @@ partial class AnTalk : Form
     }
     void StripItemClicked(object _, ToolStripItemClickedEventArgs e)
     {
-        if (reference.Name.Equals(e.ClickedItem?.Name))
+        if (reference.Name!.Equals(e.ClickedItem?.Name))
         {
             _ = BeginInvoke(async () =>
             {

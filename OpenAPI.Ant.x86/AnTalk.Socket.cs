@@ -56,12 +56,12 @@ partial class AnTalk
         axAPI.CommRqData(new OPW00004
         {
             PrevNext = 0,
-            Value = new[] { accNo, string.Empty, "0", "00" }
+            Value = [accNo, string.Empty, "0", "00"]
         });
         axAPI.CommRqData(new Opw00005
         {
             PrevNext = 0,
-            Value = new[] { accNo, string.Empty, "00" }
+            Value = [accNo, string.Empty, "00"]
         });
     }
     void LookupDailyChart(string code, int subtract = 0)
@@ -69,7 +69,7 @@ partial class AnTalk
         axAPI.CommRqData(new Opt10081
         {
             PrevNext = 0,
-            Value = new[] { code, DateTime.Now.AddDays(subtract).ToString("yyyyMMdd"), "1" }
+            Value = [code, DateTime.Now.AddDays(subtract).ToString("yyyyMMdd"), "1"]
         });
     }
     bool IsAdministrator
