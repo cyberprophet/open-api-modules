@@ -36,7 +36,7 @@ partial class AnTalk
     {
         if (Talk != null && exception != null)
         {
-            _ = await Talk.ExecutePostAsync(new Entities.Kiwoom.OpenMessage
+            _ = await Talk.ExecutePostAsync(new OpenMessage
             {
                 Screen = $"{(Socket != null ? (int)Socket.Hub.State : 0):D4}",
                 Code = Socket?.Hub.State.ToString(),
@@ -198,11 +198,11 @@ partial class AnTalk
 
         return msg.Length < 0x40 ? msg : $"[{arg.Code}] {arg.Title}({arg.Screen})";
     };
-    readonly string[] critCodes = new[]
-    {
+    readonly string[] critCodes =
+    [
         "0100",
         "0106"
-    };
+    ];
     readonly CoreWebView webView = new();
     readonly Queue<MultiOpt10081> opt10081Collection = new();
 }

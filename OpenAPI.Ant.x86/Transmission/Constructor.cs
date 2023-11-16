@@ -8,7 +8,7 @@ class Constructor
 {
     protected internal Dictionary<string, string> OnReceiveTrSingleData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
-        Dictionary<string, string> response = new();
+        Dictionary<string, string> response = [];
 
         for (int i = 0; i < Single?.Length; i++)
         {
@@ -22,7 +22,7 @@ class Constructor
 
         for (int i = 0; i < axAPI.GetRepeatCnt(e.sTrCode, e.sRQName); i++)
         {
-            response = new Dictionary<string, string>();
+            response = [];
 
             for (int j = 0; j < Multiple?.Length; j++)
             {
