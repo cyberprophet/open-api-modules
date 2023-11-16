@@ -40,7 +40,7 @@ partial class AnTalk
                         return;
 
                     case OccursInStockEventArgs stock:
-                        LookupDailyChart(stock.Code);
+                        LookupDailyChart(stock.Code, -1);
                         return;
                 }
             };
@@ -64,12 +64,12 @@ partial class AnTalk
             Value = new[] { accNo, string.Empty, "00" }
         });
     }
-    void LookupDailyChart(string code)
+    void LookupDailyChart(string code, int subtract = 0)
     {
         axAPI.CommRqData(new Opt10081
         {
             PrevNext = 0,
-            Value = new[] { code, DateTime.Now.ToString("yyyyMMdd"), "1" }
+            Value = new[] { code, DateTime.Now.AddDays(subtract).ToString("yyyyMMdd"), "1" }
         });
     }
     bool IsAdministrator

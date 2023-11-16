@@ -36,7 +36,7 @@ partial class AnTalk
     {
         if (Talk != null && exception != null)
         {
-            _ = await Talk.ExecutePostAsync(new Entities.Kiwoom.OpenMessage
+            _ = await Talk.ExecutePostAsync(new OpenMessage
             {
                 Screen = $"{(Socket != null ? (int)Socket.Hub.State : 0):D4}",
                 Code = Socket?.Hub.State.ToString(),
