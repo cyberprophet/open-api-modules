@@ -154,6 +154,16 @@ partial class AnTalk
 
             return;
         }
+        switch (e.Transmission)
+        {
+            case Opt10081 when DateTime.Now.ToString("yyyyMMdd").Equals(e.Transmission.Value?[1]):
+
+                break;
+
+            default:
+
+                return;
+        }
         Delay.Instance.Milliseconds = await RequestTransmission(e.Transmission.TrCode);
     }
     async Task OnReceiveMessage(ChejanEventArgs e)
