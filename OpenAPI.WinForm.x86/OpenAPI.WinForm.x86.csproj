@@ -11,8 +11,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="ShareInvest.OpenAPI.Constraints" Version="1.0.7" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\OpenAPI.Control.x86\OpenAPI.Control.x86.csproj" />
-		<ProjectReference Include="..\OpenAPI.Restrictions.Inquiry\OpenAPI.Restrictions.Inquiry.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
