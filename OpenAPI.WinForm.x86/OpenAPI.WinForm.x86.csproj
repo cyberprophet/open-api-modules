@@ -12,6 +12,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\OpenAPI.Control.x86\OpenAPI.Control.x86.csproj" />
+		<ProjectReference Include="..\OpenAPI.Restrictions.Inquiry\OpenAPI.Restrictions.Inquiry.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

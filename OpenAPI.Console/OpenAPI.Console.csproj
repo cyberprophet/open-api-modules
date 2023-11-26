@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyName>Run</AssemblyName>
@@ -32,7 +32,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\SecuritiesModules\Ant.Modules\Ant.Modules.csproj" />
+		<ProjectReference Include="..\..\SecuritiesModules\Ant.Modules\Ant.Modules.csproj" />
+		<ProjectReference Include="..\OpenAPI.Restrictions.Inquiry\OpenAPI.Restrictions.Inquiry.csproj" />
 	</ItemGroup>
 
 </Project>

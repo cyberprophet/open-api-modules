@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>ShareInvest.OpenAPI.Constraints</AssemblyName>
+		<RootNamespace>ShareInvest</RootNamespace>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>AnTalk</Title>
+		<Authors>cyberprophet</Authors>
+		<Company>ShareInvest Corp.</Company>
+		<Product>AnTalk</Product>
+		<Description>Package to satisfy constraints on the maximum number of inquiry requests in OpenAPI</Description>
+		<Copyright>Copyright ⓒ 2023, ShareInvest Corp.</Copyright>
+		<PackageProjectUrl>https://github.com/Share-Invest/open-api-modules</PackageProjectUrl>
+		<PackageIcon>RoundLogo.png</PackageIcon>
+		<PackageTags>OpenAPI;Kiwoom;Securities;Constraints;Request</PackageTags>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Version>1.0.7.0</Version>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="G:\Images\RoundLogo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>
