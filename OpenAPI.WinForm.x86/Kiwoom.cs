@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 using ShareInvest;
 using ShareInvest.OpenAPI.Entity;
 
@@ -44,7 +46,13 @@ partial class Kiwoom : Form
 
                 if (delayTime != 0)
                 {
-                    textBox.Text = $"Count: {CodeCount}\nSeconds: {RequestLimit.GetDelaySeconds()}\nMinutes: {RequestLimit.GetDelayMinute()}\nHours: {RequestLimit.GetDelayHour()}";
+                    textBox.Text = JsonConvert.SerializeObject(new
+                    {
+                        count = CodeCount,
+                        seconds = RequestLimit.GetDelaySeconds(),
+                        minutes = RequestLimit.GetDelayMinute(),
+                        hours = RequestLimit.GetDelayHour()
+                    }, Formatting.Indented);
                 }
                 await Task.Delay((int)delayTime + 1);
 
