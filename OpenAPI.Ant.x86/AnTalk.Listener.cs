@@ -21,14 +21,24 @@ partial class AnTalk
         }
         var response = await Talk.ExecuteGetAsync(resource);
 
-        if (HttpStatusCode.OK == response.StatusCode && response.Content?.Replace("\"", string.Empty) is string code)
+        switch (response.StatusCode)
         {
-            switch (resource)
-            {
-                case nameof(Transmission.Opt10081):
-                    LookupDailyChart(code);
-                    break;
-            }
+            case HttpStatusCode.OK when response.Content?.Replace("\"", string.Empty) is string code:
+
+                switch (resource)
+                {
+                    case nameof(Transmission.Opt10081):
+                        LookupDailyChart(code);
+                        break;
+
+                    case nameof(Transmission.Opt10004):
+                        LookupStockQuote(code);
+                        break;
+                }
+                break;
+
+            case HttpStatusCode.NotFound when nameof(Transmission.Opt10081).Equals(resource):
+                return await RequestTransmission(nameof(Transmission.Opt10004));
         }
         return 0x259;
     }
@@ -181,6 +191,11 @@ partial class AnTalk
         {
             await Socket.Hub.SendAsync(e.HubMethodName, e.Json);
         }
+        if (Enum.IsDefined(typeof(ChejanType), e.HubMethodName))
+        {
+            return;
+        }
+        await RequestTransmission(e.HubMethodName);
     }
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {

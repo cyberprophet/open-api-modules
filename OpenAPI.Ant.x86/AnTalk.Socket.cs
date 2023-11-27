@@ -72,6 +72,10 @@ partial class AnTalk
             Value = [code, DateTime.Now.AddDays(subtract).ToString("yyyyMMdd"), "1"]
         });
     }
+    void LookupStockQuote(string code)
+    {
+        axAPI.CommRqData(new Opt10004 { Value = [code], PrevNext = 0 });
+    }
     bool IsAdministrator
     {
         get; set;

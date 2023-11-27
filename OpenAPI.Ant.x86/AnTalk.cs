@@ -2,8 +2,7 @@
 
 using ShareInvest.Hubs.Socket;
 using ShareInvest.Properties;
-
-using System.Diagnostics;
+using ShareInvest.Transmission;
 
 namespace ShareInvest;
 
@@ -86,10 +85,14 @@ partial class AnTalk : Form
             {
                 if (Talk != null)
                 {
-                    Process.Start(new ProcessStartInfo("http://share.enterprises")
+#if DEBUG
+                    await RequestTransmission(nameof(Opt10081));
+#else
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("http://share.enterprises")
                     {
                         UseShellExecute = true
                     });
+#endif
                     return;
                 }
                 if (string.IsNullOrEmpty(webView.AccessToken) is false && axAPI.CommConnect())
