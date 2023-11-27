@@ -19,10 +19,11 @@ axAPI.OnEventConnect += (sender, e) =>
     }
     foreach (var code in GetCodeListByMarket())
     {
-    axAPI.CommRqData(new Opt10004
-    {
-        Value = new[] { code }
-    });
+        axAPI.CommRqData(new Opt10004
+        {
+            Value = new[] { code }
+        });
+    }
 }
 Delay.Instance.Run();
 ```
