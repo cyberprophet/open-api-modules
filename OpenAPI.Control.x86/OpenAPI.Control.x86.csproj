@@ -34,11 +34,8 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+		<PackageReference Include="ShareInvest.Delay.Task" Version="1.0.0.1" />
 		<PackageReference Include="ShareInvest.OpenAPI.TR.Entity" Version="1.1.1.3" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\OpenAPI.TR.Constraints\OpenAPI.TR.Constraints.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

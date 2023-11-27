@@ -37,6 +37,21 @@ public static class Request
 
         return (maxRequestsPerHour.Count, DateTime.Now.Subtract(firstRequestTime));
     }
+    /// <summary>The maximum number of requests per second is 5.</summary>
+    public static double DelaySeconds
+    {
+        get; private set;
+    }
+    /// <summary>The maximum number of requests per minute is 100.</summary>
+    public static double DelayMinutes
+    {
+        get; private set;
+    }
+    /// <summary>The maximum number of requests per hour is 1000.</summary>
+    public static double DelayHours
+    {
+        get; private set;
+    }
     internal static int CheckAndResetLimits(DateTime? now = null)
     {
         var requestTime = now ?? DateTime.Now;
@@ -61,7 +76,7 @@ public static class Request
     }
     static double CheckAndResetLimitsPerSecond(DateTime requestTime)
     {
-        var delayTime = double.NegativeZero;
+        DelaySeconds = double.NegativeZero;
 
         if (maxRequestsPerSecond.Count >= 5 && maxRequestsPerSecond.TryDequeue(out DateTime firstRequestTime))
         {
@@ -69,7 +84,7 @@ public static class Request
 
             if (timeSpan.TotalSeconds <= 1)
             {
-                delayTime = 1000 - timeSpan.TotalMilliseconds;
+                DelaySeconds = 1000 - timeSpan.TotalMilliseconds;
             }
             Debug.WriteLine(new
             {
@@ -79,11 +94,11 @@ public static class Request
         }
         maxRequestsPerSecond.Enqueue(requestTime);
 
-        return double.NegativeZero + delayTime;
+        return double.NegativeZero + DelaySeconds;
     }
     static double CheckAndResetLimitsPerMinute(DateTime requestTime)
     {
-        var delayTime = double.NegativeZero;
+        DelayMinutes = double.NegativeZero;
 
         if (maxRequestsPerMinute.Count >= 100 && maxRequestsPerMinute.TryDequeue(out DateTime firstRequestTime))
         {
@@ -91,7 +106,7 @@ public static class Request
 
             if (timeSpan.TotalMinutes <= 1)
             {
-                delayTime = 1000 * 60 - timeSpan.TotalMilliseconds;
+                DelayMinutes = 1000 * 60 - timeSpan.TotalMilliseconds;
             }
             Debug.WriteLine(new
             {
@@ -101,11 +116,11 @@ public static class Request
         }
         maxRequestsPerMinute.Enqueue(requestTime);
 
-        return double.NegativeZero + delayTime;
+        return double.NegativeZero + DelayMinutes;
     }
     static double CheckAndResetLimitsPerHour(DateTime requestTime)
     {
-        var delayTime = double.NegativeZero;
+        DelayHours = double.NegativeZero;
 
         if (maxRequestsPerHour.Count >= 1000 && maxRequestsPerHour.TryDequeue(out DateTime firstRequestTime))
         {
@@ -113,7 +128,7 @@ public static class Request
 
             if (timeSpan.TotalHours <= 1)
             {
-                delayTime = 1000 * 60 * 60 - timeSpan.TotalMilliseconds;
+                DelayHours = 1000 * 60 * 60 - timeSpan.TotalMilliseconds;
             }
             Debug.WriteLine(new
             {
@@ -123,7 +138,7 @@ public static class Request
         }
         maxRequestsPerHour.Enqueue(requestTime);
 
-        return double.NegativeZero + delayTime;
+        return double.NegativeZero + DelayHours;
     }
     static readonly Queue<DateTime> maxRequestsPerSecond = new();
     static readonly Queue<DateTime> maxRequestsPerMinute = new(0x20);
