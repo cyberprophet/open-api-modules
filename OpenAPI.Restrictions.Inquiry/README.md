@@ -1,35 +1,18 @@
 ```C#
-ax.API.OnReceiveTrData += (sender, e) =>
+Delay.Instance.RequestTheMission(new Task(async () =>
 {
-    textBox.Text = ax.ConvertTrSingleData<string>(new Opt10001().Single, e);
-};
-ax.API.OnEventConnect += async (sender, e) =>
-{
-    if (e.nErrCode != 0)
-    {
-        textBox.Text = e.nErrCode.ToString();
-    }
-    foreach (var code in GetCodeListByMarket())
-    {
-        // Returns in milliseconds, reflecting latency.
-        var delayTime = RequestLimit.CheckAndResetLimits();
+    var delayTime = RequestLimit.CheckAndResetLimits();
 
-        if (delayTime != 0)
-        {
-            textBox.Text = $"Count: {CodeCount}
-                             Seconds: {RequestLimit.GetDelaySeconds()}
-                             Minutes: {RequestLimit.GetDelayMinute()}
-                             Hours: {RequestLimit.GetDelayHour()}";
-        }
-        await Task.Delay((int)delayTime + 1);
-
-        ax.CommRqData(new Opt10001
-        {
-            Value = new[] { code }
-        });
-        CodeCount++;
+    if (delayTime > 0)
+    {
+        await Task.Delay(delayTime);
     }
-};
-ax.API.CommConnect();
+    for (int index = 0; index < tr.Id.Length; index++)
+    {
+        axAPI.SetInputValue(tr.Id[index], tr.Value?[index]);
+    }
+    OnReceiveErrMessage(tr.RQName, axAPI.CommRqData(tr.RQName, tr.TrCode, tr.PrevNext, sScrNo));
+}));
+Cache.SaveTemporarily(sScrNo, tr);
 ```
 ### [· For detailed examples, follow the link.](https://github.com/Share-Invest/open-api-modules/blob/dev/OpenAPI.Restrictions.Inquiry/RequestLimit.cs)
