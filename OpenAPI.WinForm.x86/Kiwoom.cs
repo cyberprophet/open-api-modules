@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 using ShareInvest;
 using ShareInvest.OpenAPI.Entity;
 
@@ -32,9 +30,12 @@ partial class Kiwoom : Form
 
         ax.API.OnReceiveTrData += (sender, e) =>
         {
-            textBox.Text = ax.ConvertTrSingleData<string>(new Opt10001().Single, e);
+            foreach (var str in ax.ConvertTrMultiData<string>(new Opt10004().Multiple, e))
+            {
+                textBox.Text = str;
+            }
         };
-        ax.API.OnEventConnect += async (sender, e) =>
+        ax.API.OnEventConnect += (sender, e) =>
         {
             if (e.nErrCode != 0)
             {
@@ -42,27 +43,14 @@ partial class Kiwoom : Form
             }
             foreach (var code in GetCodeListByMarket())
             {
-                var delayTime = RequestLimit.CheckAndResetLimits();
-
-                if (delayTime != 0)
-                {
-                    textBox.Text = JsonConvert.SerializeObject(new
-                    {
-                        count = CodeCount,
-                        seconds = RequestLimit.GetDelaySeconds(),
-                        minutes = RequestLimit.GetDelayMinute(),
-                        hours = RequestLimit.GetDelayHour()
-                    }, Formatting.Indented);
-                }
-                await Task.Delay((int)delayTime + 1);
-
-                ax.CommRqData(new Opt10001
+                ax.CommRqData(new Opt10004
                 {
                     Value = new[] { code }
                 });
-                CodeCount++;
             }
+            Delay.Instance.Run();
         };
+        Delay.Instance.Milliseconds = 101;
         ax.API.CommConnect();
     }
     IEnumerable<string> GetCodeListByMarket()
@@ -75,10 +63,6 @@ partial class Kiwoom : Form
         {
             yield return code;
         }
-    }
-    uint CodeCount
-    {
-        get; set;
     }
     readonly AxKH ax;
 }
