@@ -94,7 +94,11 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                     }
                     continue;
                 }
-                Send?.Invoke(this, new JsonMsgEventArgs(tr, json));
+                Send?.Invoke(this, tr switch
+                {
+                    OpenAPI.Entity.Opt10004 => new TrMsgEventArgs(tr, json),
+                    _ => new JsonMsgEventArgs(tr, json)
+                });
             }
             Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
             {
