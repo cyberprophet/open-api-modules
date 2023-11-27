@@ -75,6 +75,8 @@ public static class RequestLimit
             {
                 break;
             }
+            maxRequestsPerSecond.Enqueue(requestTime.AddMilliseconds(timeSpan.TotalMilliseconds));
+
             return timeSpan.TotalMilliseconds;
         }
         maxRequestsPerSecond.Enqueue(requestTime);
@@ -97,6 +99,8 @@ public static class RequestLimit
             {
                 break;
             }
+            maxRequestsPerMinute.Enqueue(requestTime.AddMilliseconds(timeSpan.TotalMilliseconds));
+
             return timeSpan.TotalMilliseconds;
         }
         maxRequestsPerMinute.Enqueue(requestTime);
@@ -119,6 +123,8 @@ public static class RequestLimit
             {
                 break;
             }
+            maxRequestsPerHour.Enqueue(requestTime.AddMilliseconds(timeSpan.TotalMilliseconds));
+
             return timeSpan.TotalMilliseconds;
         }
         maxRequestsPerHour.Enqueue(requestTime);
