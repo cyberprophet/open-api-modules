@@ -97,6 +97,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 Send?.Invoke(this, tr switch
                 {
                     OpenAPI.Entity.Opt10004 => new TrMsgEventArgs(tr, json),
+
                     _ => new JsonMsgEventArgs(tr, json)
                 });
             }
@@ -108,9 +109,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             }));
             return;
         }
-#if DEBUG
         Debug.WriteLine(nameof(OnReceiveTrData));
-#endif
     }
     void OnReceiveChejanData(object _, _DKHOpenAPIEvents_OnReceiveChejanDataEvent e)
     {
