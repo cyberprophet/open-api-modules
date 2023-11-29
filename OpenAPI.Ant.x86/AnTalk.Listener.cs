@@ -104,6 +104,17 @@ partial class AnTalk
         switch (e.Securities.AccNo[^2..].CompareTo("31"))
         {
             case < 0:
+
+                if (await webView.GetCoordinatesAsync() is Entities.Google.Maps.Coordinate crd)
+                {
+                    _ = await Talk!.ExecutePostAsync(new Entities.Position
+                    {
+                        Latitude = crd.Lat,
+                        Longitude = crd.Lng,
+                        MacAddress = Service.GetMacAddress(),
+                        SerialKey = serialKey
+                    });
+                }
                 CheckOneSAccount(e.Securities.AccNo);
                 break;
 

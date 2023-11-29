@@ -182,8 +182,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             {
                 AccNo = accNo,
                 SecuritiesId = id,
-                UserName = name,
-                MacAddress = Service.GetMacAddress()
+                UserName = name
             }));
         }
     }
