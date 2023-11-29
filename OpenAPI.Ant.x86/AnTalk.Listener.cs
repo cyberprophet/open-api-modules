@@ -13,7 +13,7 @@ namespace ShareInvest;
 
 partial class AnTalk
 {
-    async Task<int> RequestTransmission(string resource)
+    async Task<int> RequestTransmissionAsync(string resource)
     {
         if (Talk == null)
         {
@@ -38,7 +38,7 @@ partial class AnTalk
                 break;
 
             case HttpStatusCode.NotFound when nameof(Transmission.Opt10081).Equals(resource):
-                return await RequestTransmission(nameof(Transmission.Opt10004));
+                return await RequestTransmissionAsync(nameof(Transmission.Opt10004));
         }
         return 0x259;
     }
@@ -72,7 +72,7 @@ partial class AnTalk
             {
                 MarketOperation.장시작 => 0xC9,
 
-                MarketOperation.장마감 => await RequestTransmission(nameof(Opt10081)),
+                MarketOperation.장마감 => await RequestTransmissionAsync(nameof(Opt10081)),
 
                 _ => 0x259
             };
@@ -130,6 +130,10 @@ partial class AnTalk
                 await Socket!.Hub.SendAsync(nameof(TrConstructor.EventOccursInStock), o.Code, char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]);
                 return;
 
+            case Entities.Kiwoom.Opt10004:
+                _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
+                break;
+
             case null:
 
                 return;
@@ -174,7 +178,7 @@ partial class AnTalk
 
                 return;
         }
-        Delay.Instance.Milliseconds = await RequestTransmission(e.Transmission.TrCode);
+        Delay.Instance.Milliseconds = await RequestTransmissionAsync(e.Transmission.TrCode);
     }
     async Task OnReceiveMessage(ChejanEventArgs e)
     {
@@ -191,11 +195,6 @@ partial class AnTalk
         {
             await Socket.Hub.SendAsync(e.HubMethodName, e.Json);
         }
-        if (Enum.IsDefined(typeof(ChejanType), e.HubMethodName))
-        {
-            return;
-        }
-        await RequestTransmission(e.HubMethodName);
     }
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
