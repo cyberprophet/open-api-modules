@@ -1,4 +1,5 @@
 ﻿using ShareInvest;
+
 /*
 using ShareInvest.Utilities.Naver;
 
@@ -35,4 +36,5 @@ Console.WriteLine(new
     result.delayTime
 });
 await Task.Delay(result.delayTime);
+
 Console.ReadLine();

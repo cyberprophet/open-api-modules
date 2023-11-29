@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnTalk.Starter", "AnTalk.St
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAPI.Restrictions.Inquiry", "OpenAPI.Restrictions.Inquiry\OpenAPI.Restrictions.Inquiry.csproj", "{66A4254C-32D0-4DF2-823C-3758EB8B54B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAPI.TR.Constraints", "OpenAPI.TR.Constraints\OpenAPI.TR.Constraints.csproj", "{F7A41774-1555-4C62-8DAA-579657E76619}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAPI.TR.Constraints", "OpenAPI.TR.Constraints\OpenAPI.TR.Constraints.csproj", "{F7A41774-1555-4C62-8DAA-579657E76619}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

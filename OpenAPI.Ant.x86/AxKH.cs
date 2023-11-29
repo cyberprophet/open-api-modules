@@ -94,11 +94,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                     }
                     continue;
                 }
-                Send?.Invoke(this, tr switch
-                {
-                    OpenAPI.Entity.Opt10004 => new TrMsgEventArgs(tr, json),
-                    _ => new JsonMsgEventArgs(tr, json)
-                });
+                Send?.Invoke(this, new JsonMsgEventArgs(tr, json));
             }
             Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
             {
@@ -108,9 +104,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             }));
             return;
         }
-#if DEBUG
         Debug.WriteLine(nameof(OnReceiveTrData));
-#endif
     }
     void OnReceiveChejanData(object _, _DKHOpenAPIEvents_OnReceiveChejanDataEvent e)
     {
@@ -188,7 +182,8 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             {
                 AccNo = accNo,
                 SecuritiesId = id,
-                UserName = name
+                UserName = name,
+                MacAddress = Service.GetMacAddress()
             }));
         }
     }
