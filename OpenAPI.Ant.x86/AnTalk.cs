@@ -86,7 +86,7 @@ partial class AnTalk : Form
                 if (Talk != null)
                 {
 #if DEBUG
-                    await RequestTransmissionAsync(nameof(Opt10081));
+                    await webView.GetCoordinatesAsync();
 #else
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("http://share.enterprises")
                     {
