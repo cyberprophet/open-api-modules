@@ -27,4 +27,23 @@ axAPI.OnEventConnect += (sender, e) =>
 }
 Delay.Instance.Run();
 ```
+### · Options
+```C#
+// If true, a limit of 1000 per hour is used.
+// default is false.
+public static bool IsUsingHoursUnit
+{
+    get; set;
+}
+internal static int CheckAndResetLimits(DateTime? now = null)
+{
+    ...
+
+    if (IsUsingHoursUnit && perHour > 0)
+    {
+        return (int)perHour + 1;
+    }
+    ...
+}
+```
 ### [· For detailed examples, follow the link.](https://github.com/Share-Invest/open-api-modules/tree/dev/OpenAPI.TR.Constraints)
