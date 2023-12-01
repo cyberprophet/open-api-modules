@@ -19,7 +19,7 @@
 		<PackageTags>OpenAPI;Kiwoom;Securities;Constraints;Max</PackageTags>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<Version>8.0.0.1</Version>
+		<Version>8.0.1.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
