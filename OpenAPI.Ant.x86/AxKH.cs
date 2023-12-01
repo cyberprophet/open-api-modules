@@ -67,6 +67,10 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             GetUserInfo();
             GetCodeListByMarket();
 
+            Send?.Invoke(this, new SecuritiesEventArgs(new Securities
+            {
+                MacAddress = Service.GetMacAddress()
+            }));
             return;
         }
         Send?.Invoke(this, new ErrMsgEventArgs(sender.GetType().Name));

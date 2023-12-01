@@ -70,12 +70,14 @@ partial class AnTalk
 
             Delay.Instance.Milliseconds = marketOperation switch
             {
-                MarketOperation.장시작 => 0xC9,
+                MarketOperation.장시작 => worksWithMarketOperation(),
 
                 MarketOperation.장마감 => await RequestTransmissionAsync(nameof(Opt10081)),
 
                 _ => 0x259
             };
+            Cache.MarketOperation = marketOperation;
+
             notifyIcon.Text = $"{DateTime.Now:G}\n{Enum.GetName(marketOperation)}";
         }
     }
@@ -99,6 +101,18 @@ partial class AnTalk
 
         if (string.IsNullOrEmpty(e.Securities.AccNo))
         {
+            var now = DateTime.Now;
+
+            Request.IsUsingHoursUnit = now.DayOfWeek switch
+            {
+                DayOfWeek.Sunday or DayOfWeek.Saturday => true,
+
+                _ => now.Hour < 7 || now.Hour >= 15
+            };
+            if (string.IsNullOrEmpty(e.Securities.MacAddress) is false && Request.IsUsingHoursUnit)
+            {
+                await RequestTransmissionAsync(nameof(Opt10081));
+            }
             return;
         }
         switch (e.Securities.AccNo[^2..].CompareTo("31"))
@@ -236,6 +250,18 @@ partial class AnTalk
             });
         });
     }
+    readonly Func<int> worksWithMarketOperation = () =>
+    {
+        var now = DateTime.Now;
+
+        Request.IsUsingHoursUnit = now.DayOfWeek switch
+        {
+            DayOfWeek.Sunday or DayOfWeek.Saturday => true,
+
+            _ => now.Hour < 8 || now.Hour > 14
+        };
+        return 0xC9;
+    };
     readonly Func<OpenMessage, string> convertMsg = arg =>
     {
         var msg = $"{DateTime.Now:G}\n[{arg.Code}] {arg.Title}({arg.Screen})";
