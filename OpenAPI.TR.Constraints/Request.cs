@@ -52,6 +52,11 @@ public static class Request
     {
         get; private set;
     }
+    /// <summary>If <paramref name="true"/>, a limit of 1000 per hour is used.<para><paramref name="default"/> is <paramref name="false"/>.</para> </summary>
+    public static bool IsUsingHoursUnit
+    {
+        get; set;
+    }
     internal static int CheckAndResetLimits(DateTime? now = null)
     {
         var requestTime = now ?? DateTime.Now;
@@ -60,7 +65,7 @@ public static class Request
         var perMinute = CheckAndResetLimitsPerMinute(requestTime);
         var perHour = CheckAndResetLimitsPerHour(requestTime);
 
-        if (perHour > 0)
+        if (IsUsingHoursUnit && perHour > 0)
         {
             return (int)perHour + 1;
         }
