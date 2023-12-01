@@ -33,7 +33,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2151.40" />
-		<PackageReference Include="ShareInvest.OpenAPI.TR.Constraints" Version="8.0.0.1" />
+		<PackageReference Include="ShareInvest.OpenAPI.TR.Constraints" Version="8.0.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>
