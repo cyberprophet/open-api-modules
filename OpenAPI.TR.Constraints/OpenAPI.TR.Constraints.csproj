@@ -1,39 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<AssemblyName>ShareInvest.OpenAPI.TR.Entity</AssemblyName>
+		<SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
+		<AssemblyName>ShareInvest.OpenAPI.TR.Constraints</AssemblyName>
 		<RootNamespace>ShareInvest</RootNamespace>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<PackageId>ShareInvest.OpenAPI.TR.Entity</PackageId>
+		<Title>AnTalk</Title>
 		<Authors>cyberprophet</Authors>
 		<Company>ShareInvest Corp.</Company>
-		<Product>AntTalk</Product>
-		<Description>library for AnyCPU use and convenient of Kiwoom OpenAPI</Description>
+		<Product>AnTalk</Product>
+		<Description>Package to satisfy constraints on the maximum number of inquiry requests in Kiwoom Securities OpenAPI</Description>
 		<Copyright>Copyright ⓒ 2023, ShareInvest Corp.</Copyright>
 		<PackageProjectUrl>https://github.com/Share-Invest/open-api-modules</PackageProjectUrl>
 		<PackageIcon>RoundLogo.png</PackageIcon>
+		<PackageTags>OpenAPI;Kiwoom;Securities;Constraints;Max</PackageTags>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageTags>OpenAPI;Kiwoom;Trading;API;Stock</PackageTags>
-		<Title>AntTalk</Title>
-		<Version>7.1.1.9</Version>
+		<Version>8.0.1.1</Version>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\LICENSE.txt">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="..\RoundLogo.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

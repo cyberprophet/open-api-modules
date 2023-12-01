@@ -9,7 +9,7 @@ partial class Kiwoom : Form
     {
         InitializeComponent();
 
-        var ax = new AxKH();
+        ax = new AxKH();
         var textBox = new TextBox
         {
             Dock = DockStyle.Fill,
@@ -28,13 +28,12 @@ partial class Kiwoom : Form
 
         textBox.Dock = DockStyle.Fill;
 
-        TR tr = new Opt10001
-        {
-            Value = new[] { "005930" }
-        };
         ax.API.OnReceiveTrData += (sender, e) =>
         {
-            textBox.Text = ax.ConvertTrSingleData<string>(tr.Single, e);
+            foreach (var str in ax.ConvertTrMultiData<string>(new Opt10004().Multiple, e))
+            {
+                textBox.Text = str;
+            }
         };
         ax.API.OnEventConnect += (sender, e) =>
         {
@@ -42,10 +41,28 @@ partial class Kiwoom : Form
             {
                 textBox.Text = e.nErrCode.ToString();
             }
+            foreach (var code in GetCodeListByMarket())
+            {
+                ax.CommRqData(new Opt10004
+                {
+                    Value = new[] { code }
+                });
+            }
             Delay.Instance.Run();
-
-            ax.CommRqData(tr);
         };
+        Delay.Instance.Milliseconds = 101;
         ax.API.CommConnect();
     }
+    IEnumerable<string> GetCodeListByMarket()
+    {
+        List<string> codeListByMarket = new(ax.API.GetCodeListByMarket("0").Split(';').OrderBy(o => Guid.NewGuid()));
+
+        codeListByMarket.AddRange(ax.API.GetCodeListByMarket("10").Split(';').OrderBy(o => Guid.NewGuid()));
+
+        foreach (var code in codeListByMarket)
+        {
+            yield return code;
+        }
+    }
+    readonly AxKH ax;
 }

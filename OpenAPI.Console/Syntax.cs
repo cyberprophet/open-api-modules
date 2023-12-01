@@ -17,7 +17,7 @@ static class Syntax
                 sections.Enqueue(line[..pos].Trim());
             }
         }
-        return sections.ToArray();
+        return [.. sections];
     }
     internal static string CreateNamespace()
     {

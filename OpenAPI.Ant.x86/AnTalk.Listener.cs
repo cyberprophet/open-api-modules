@@ -13,7 +13,7 @@ namespace ShareInvest;
 
 partial class AnTalk
 {
-    async Task<int> RequestTransmission(string resource)
+    async Task<int> RequestTransmissionAsync(string resource)
     {
         if (Talk == null)
         {
@@ -21,14 +21,24 @@ partial class AnTalk
         }
         var response = await Talk.ExecuteGetAsync(resource);
 
-        if (HttpStatusCode.OK == response.StatusCode && response.Content?.Replace("\"", string.Empty) is string code)
+        switch (response.StatusCode)
         {
-            switch (resource)
-            {
-                case nameof(Transmission.Opt10081):
-                    LookupDailyChart(code);
-                    break;
-            }
+            case HttpStatusCode.OK when response.Content?.Replace("\"", string.Empty) is string code:
+
+                switch (resource)
+                {
+                    case nameof(Transmission.Opt10081):
+                        LookupDailyChart(code);
+                        break;
+
+                    case nameof(Transmission.Opt10004):
+                        LookupStockQuote(code);
+                        break;
+                }
+                break;
+
+            case HttpStatusCode.NotFound when nameof(Transmission.Opt10081).Equals(resource):
+                return await RequestTransmissionAsync(nameof(Transmission.Opt10004));
         }
         return 0x259;
     }
@@ -60,12 +70,14 @@ partial class AnTalk
 
             Delay.Instance.Milliseconds = marketOperation switch
             {
-                MarketOperation.장시작 => 0xC9,
+                MarketOperation.장시작 => worksWithMarketOperation(),
 
-                MarketOperation.장마감 => await RequestTransmission(nameof(Opt10081)),
+                MarketOperation.장마감 => await RequestTransmissionAsync(nameof(Opt10081)),
 
                 _ => 0x259
             };
+            Cache.MarketOperation = marketOperation;
+
             notifyIcon.Text = $"{DateTime.Now:G}\n{Enum.GetName(marketOperation)}";
         }
     }
@@ -89,11 +101,34 @@ partial class AnTalk
 
         if (string.IsNullOrEmpty(e.Securities.AccNo))
         {
+            var now = DateTime.Now;
+
+            Request.IsUsingHoursUnit = now.DayOfWeek switch
+            {
+                DayOfWeek.Sunday or DayOfWeek.Saturday => true,
+
+                _ => now.Hour < 7 || now.Hour >= 15
+            };
+            if (string.IsNullOrEmpty(e.Securities.MacAddress) is false && Request.IsUsingHoursUnit)
+            {
+                await RequestTransmissionAsync(nameof(Opt10081));
+            }
             return;
         }
         switch (e.Securities.AccNo[^2..].CompareTo("31"))
         {
             case < 0:
+
+                if (await webView.GetCoordinatesAsync() is Entities.Google.Maps.Coordinate crd)
+                {
+                    _ = await Talk!.ExecutePostAsync(new Entities.Position
+                    {
+                        Latitude = crd.Lat,
+                        Longitude = crd.Lng,
+                        MacAddress = Service.GetMacAddress(),
+                        SerialKey = serialKey
+                    });
+                }
                 CheckOneSAccount(e.Securities.AccNo);
                 break;
 
@@ -119,6 +154,10 @@ partial class AnTalk
                 }
                 await Socket!.Hub.SendAsync(nameof(TrConstructor.EventOccursInStock), o.Code, char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]);
                 return;
+
+            case Entities.Kiwoom.Opt10004:
+                _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
+                break;
 
             case null:
 
@@ -154,7 +193,17 @@ partial class AnTalk
 
             return;
         }
-        Delay.Instance.Milliseconds = await RequestTransmission(e.Transmission.TrCode);
+        switch (e.Transmission)
+        {
+            case Opt10081 when DateTime.Now.ToString("yyyyMMdd").Equals(e.Transmission.Value?[1]):
+
+                break;
+
+            default:
+
+                return;
+        }
+        Delay.Instance.Milliseconds = await RequestTransmissionAsync(e.Transmission.TrCode);
     }
     async Task OnReceiveMessage(ChejanEventArgs e)
     {
@@ -165,6 +214,13 @@ partial class AnTalk
             _ = await Talk.ExecutePostAsync(e.Convey);
         }
     }
+    async Task OnReceiveMessage(TrMsgEventArgs e)
+    {
+        if (Socket != null)
+        {
+            await Socket.Hub.SendAsync(e.HubMethodName, e.Json);
+        }
+    }
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
         _ = BeginInvoke(async () =>
@@ -172,6 +228,8 @@ partial class AnTalk
             await (e switch
             {
                 RealMsgEventArgs rMsg => OnReceiveMessage(rMsg),
+
+                TrMsgEventArgs cMsg => OnReceiveMessage(cMsg),
 
                 ChejanEventArgs cjMsg => OnReceiveMessage(cjMsg),
 
@@ -192,6 +250,18 @@ partial class AnTalk
             });
         });
     }
+    readonly Func<int> worksWithMarketOperation = () =>
+    {
+        var now = DateTime.Now;
+
+        Request.IsUsingHoursUnit = now.DayOfWeek switch
+        {
+            DayOfWeek.Sunday or DayOfWeek.Saturday => true,
+
+            _ => now.Hour < 8 || now.Hour > 14
+        };
+        return 0xC9;
+    };
     readonly Func<OpenMessage, string> convertMsg = arg =>
     {
         var msg = $"{DateTime.Now:G}\n[{arg.Code}] {arg.Title}({arg.Screen})";

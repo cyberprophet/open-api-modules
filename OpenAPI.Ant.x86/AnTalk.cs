@@ -3,8 +3,6 @@
 using ShareInvest.Hubs.Socket;
 using ShareInvest.Properties;
 
-using System.Diagnostics;
-
 namespace ShareInvest;
 
 partial class AnTalk : Form
@@ -51,12 +49,11 @@ partial class AnTalk : Form
 
         if (Talk != null)
         {
-            if (HubConnectionState.Connected != Socket?.Hub.State)
+            if (HubConnectionState.Connected != Socket?.Hub.State || MarketOperation.장시작 != Cache.MarketOperation && Request.DelayHours > now.Second)
             {
                 _ = BeginInvoke(Dispose);
             }
             notifyIcon.Icon = icons[now.Second % 2];
-
             return;
         }
         if (axAPI.ConnectState)
@@ -86,10 +83,14 @@ partial class AnTalk : Form
             {
                 if (Talk != null)
                 {
-                    Process.Start(new ProcessStartInfo("http://share.enterprises")
+#if DEBUG
+                    await webView.GetCoordinatesAsync();
+#else
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("http://share.enterprises")
                     {
                         UseShellExecute = true
                     });
+#endif
                     return;
                 }
                 if (string.IsNullOrEmpty(webView.AccessToken) is false && axAPI.CommConnect())
