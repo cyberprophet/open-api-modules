@@ -7,6 +7,7 @@ using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
 
+using System.Diagnostics;
 using System.Net;
 
 namespace ShareInvest;
@@ -60,6 +61,18 @@ partial class AnTalk
     }
     async Task OnReceiveMessage(RealMsgEventArgs e)
     {
+#if DEBUG
+        if (!Array.Exists(realTypes, match => match.Equals(e.Type)))
+        {
+            Debug.WriteLine(new
+            {
+                e.Type,
+                e.Key,
+                e.Data.Split('\t').Length,
+                e.Data
+            });
+        }
+#endif
         if (IsAdministrator && HubConnectionState.Connected == Socket?.Hub.State)
         {
             await Socket.Hub.SendAsync(e.Type, e.Key, e.Data);
@@ -273,6 +286,17 @@ partial class AnTalk
         "0100",
         "0106"
     ];
+#if DEBUG
+    readonly string[] realTypes =
+    [
+        "주식호가잔량",
+        "주식체결",
+        "주식우선호가",
+        "종목프로그램매매",
+        "주식당일거래원",
+        "주식예상체결"
+    ];
+#endif
     readonly CoreWebView webView = new();
     readonly Queue<MultiOpt10081> opt10081Collection = new();
 }

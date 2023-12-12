@@ -130,11 +130,17 @@
   <data name="EXIT" xml:space="preserve">
     <value>시스템 종료</value>
   </data>
+  <data name="INQUIRY" xml:space="preserve">
+    <value>ShareInvest.Inquiry.Theme</value>
+  </data>
   <data name="PUBLISH" xml:space="preserve">
     <value>publish</value>
   </data>
   <data name="REGISTER" xml:space="preserve">
     <value>시작프로그램 등록</value>
+  </data>
+  <data name="SEARCHINGTHEME" xml:space="preserve">
+    <value>테마별 시세 조회 중지</value>
   </data>
   <data name="T0" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\speech-balloon-white-k256_icon-icons.com_62576.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -156,6 +162,9 @@
   </data>
   <data name="T6" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\speech-balloon-orange-k256_icon-icons.com_62602.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="THEME" xml:space="preserve">
+    <value>테마별 시세 조회</value>
   </data>
   <data name="UNREGISTER" xml:space="preserve">
     <value>시작프로그램 해제</value>
