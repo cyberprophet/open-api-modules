@@ -131,7 +131,7 @@
     <value>시스템 종료</value>
   </data>
   <data name="INQUIRY" xml:space="preserve">
-    <value>ShareInvest.Inquiry.Theme</value>
+    <value>Naver</value>
   </data>
   <data name="PUBLISH" xml:space="preserve">
     <value>publish</value>
