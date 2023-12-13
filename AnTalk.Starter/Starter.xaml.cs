@@ -2,7 +2,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Media;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -65,6 +64,20 @@ public partial class Starter : Window
             {
                 case nameof(Properties.Resources.THEME):
                     SearchingTheme = SearchingTheme is false;
+
+                    _ = Task.Run(async () =>
+                    {
+                        var path = string.Empty;
+
+                        while (SearchingTheme)
+                        {
+                            if (Update != null && string.IsNullOrEmpty(path))
+                            {
+                                path = await Update.InquiryAsync();
+                            }
+                            await Task.Delay(0x400 * Update.InquiryProcess(path));
+                        }
+                    });
                     e.ClickedItem.Text = SearchingTheme ? Properties.Resources.SEARCHINGTHEME : Properties.Resources.THEME;
                     return;
 
@@ -104,18 +117,6 @@ public partial class Starter : Window
             {
                 if (Update != null)
                 {
-                    if (InquiryByTheme)
-                    {
-                        timer.Interval = new TimeSpan(1, 1, 1, 0xC);
-
-                        await Task.Delay(Random.Shared.Next(5 * 0x400, 0xA * 0x400));
-
-                        webView.Reload();
-
-                        await Task.Delay(0x400);
-
-                        timer.Interval = await Update.InquiryAsync();
-                    }
                     if (Update.BeOutOperation)
                     {
                         timer.Interval = new TimeSpan(1, 1, 1, 0xC);
@@ -186,10 +187,6 @@ public partial class Starter : Window
     bool SearchingTheme
     {
         get; set;
-    }
-    bool InquiryByTheme
-    {
-        get => SearchingTheme && Process.GetProcessesByName(Properties.Resources.INQUIRY).Length == 0;
     }
     readonly System.Windows.Forms.ContextMenuStrip menu;
     readonly System.Windows.Forms.NotifyIcon notifyIcon;
