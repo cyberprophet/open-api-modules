@@ -120,7 +120,7 @@ partial class AnTalk
             {
                 DayOfWeek.Sunday or DayOfWeek.Saturday => true,
 
-                _ => now.Hour < 7 || now.Hour >= 15
+                _ => now.Hour < 7 || now.Hour >= 15 && now.Minute > 30
             };
             if (string.IsNullOrEmpty(e.Securities.MacAddress) is false && Request.IsUsingHoursUnit)
             {
