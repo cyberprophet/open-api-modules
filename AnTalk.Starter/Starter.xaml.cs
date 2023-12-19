@@ -104,6 +104,8 @@ public partial class Starter : Window
         {
             if (IsVisible == false)
             {
+                webView?.Reload();
+
                 Show();
             }
             else
