@@ -201,19 +201,17 @@ partial class AnTalk
         {
             case OpenAPI.Entity.Opt10080 when Talk != null:
 
-                while (opt10080Collection.TryDequeue(out Entities.Kiwoom.Opt10080? ek))
+                if (opt10080Collection.Count > 0)
                 {
-                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, ek);
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, opt10080Collection);
 
                     var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
 
-                    if (HttpStatusCode.OK == response.StatusCode && positive && saveChanges > 0)
+                    if (HttpStatusCode.OK != response.StatusCode || positive && saveChanges != opt10080Collection.Count)
                     {
-                        continue;
+                        e.Transmission.PrevNext = 0;
                     }
                     opt10080Collection.Clear();
-
-                    e.Transmission.PrevNext = opt10080Collection.Count;
                 }
                 break;
 
