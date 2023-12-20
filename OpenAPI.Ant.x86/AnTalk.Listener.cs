@@ -242,6 +242,9 @@ partial class AnTalk
         switch (e.Transmission)
         {
             case OpenAPI.Entity.Opt10080:
+
+                break;
+
             case Opt10081 when DateTime.Now.ToString("yyyyMMdd").Equals(e.Transmission.Value?[1]):
 
                 break;
