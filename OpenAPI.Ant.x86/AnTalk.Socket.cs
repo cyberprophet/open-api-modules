@@ -72,6 +72,19 @@ partial class AnTalk
             Value = [code, DateTime.Now.AddDays(subtract).ToString("yyyyMMdd"), "1"]
         });
     }
+    /// <summary>
+    /// 수정주가구분 1:유상증자, 2:무상증자, 4:배당락, 8:액면분할, 16:액면병합, 32:기업합병, 64:감자, 256:권리락
+    /// </summary>
+    /// <param name="code">종목코드</param>
+    /// <param name="tick">1:1분, 3:3분, 5:5분, 10:10분, 15:15분, 30:30분, 45:45분, 60:60분</param>
+    void LookupMinuteChart(string code, int tick)
+    {
+        axAPI.CommRqData(new Opt10080
+        {
+            PrevNext = 0,
+            Value = [code, tick.ToString(), "1"]
+        });
+    }
     void LookupStockQuote(string code)
     {
         axAPI.CommRqData(new Opt10004 { Value = [code], PrevNext = 0 });

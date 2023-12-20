@@ -34,6 +34,8 @@ partial class AnTalk
                     {
 #if DEBUG
                         Debug.WriteLine(ex.Message);
+#else
+                        Console.WriteLine(ex.Message);
 #endif
                     }
                     notifyIcon.Icon.Dispose();
