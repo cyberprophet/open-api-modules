@@ -215,6 +215,10 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             }
         }
     }
+    void GetCodeListByFutures()
+    {
+        axAPI.GetFutureList().Split(';');
+    }
     bool ServerType
     {
         get
