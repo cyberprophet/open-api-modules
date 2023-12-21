@@ -189,7 +189,7 @@ partial class AnTalk
                 _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
                 break;
 
-            case null:
+            case Entities.Kiwoom.Opt50001 or null:
 
                 return;
         }
@@ -201,19 +201,17 @@ partial class AnTalk
         {
             case OpenAPI.Entity.Opt10080 when Talk != null:
 
-                while (opt10080Collection.TryDequeue(out Entities.Kiwoom.Opt10080? ek))
+                if (opt10080Collection.Count > 0)
                 {
-                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, ek);
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, opt10080Collection);
 
                     var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
 
-                    if (HttpStatusCode.OK == response.StatusCode && positive && saveChanges > 0)
+                    if (HttpStatusCode.OK != response.StatusCode || positive && saveChanges != opt10080Collection.Count)
                     {
-                        continue;
+                        e.Transmission.PrevNext = 0;
                     }
                     opt10080Collection.Clear();
-
-                    e.Transmission.PrevNext = opt10080Collection.Count;
                 }
                 break;
 
@@ -244,6 +242,9 @@ partial class AnTalk
         switch (e.Transmission)
         {
             case OpenAPI.Entity.Opt10080:
+
+                break;
+
             case Opt10081 when DateTime.Now.ToString("yyyyMMdd").Equals(e.Transmission.Value?[1]):
 
                 break;

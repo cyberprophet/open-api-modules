@@ -1,6 +1,9 @@
 using ShareInvest;
 using ShareInvest.OpenAPI.Entity;
 
+using System.Diagnostics;
+using System.Text;
+
 namespace OpenAPI.WinForm.x86;
 
 partial class Kiwoom : Form
@@ -28,12 +31,17 @@ partial class Kiwoom : Form
 
         textBox.Dock = DockStyle.Fill;
 
+        var scrNo = 1000;
+
         ax.API.OnReceiveTrData += (sender, e) =>
         {
-            foreach (var str in ax.ConvertTrMultiData<string>(new Opt10004().Multiple, e))
+            foreach (var str in ax.ConvertTrMultiData<string>(new Opt50001().Multiple, e))
             {
                 textBox.Text = str;
+
+                Debug.WriteLine(str);
             }
+            Debug.WriteLine(ax.ConvertTrSingleData<string>(new Opt50001().Single, e));
         };
         ax.API.OnEventConnect += (sender, e) =>
         {
@@ -41,17 +49,45 @@ partial class Kiwoom : Form
             {
                 textBox.Text = e.nErrCode.ToString();
             }
-            foreach (var code in GetCodeListByMarket())
+            foreach (var code in ax.API.GetFutureList().Split(';'))
             {
-                ax.CommRqData(new Opt10004
-                {
-                    Value = new[] { code }
-                });
+                Debug.WriteLine(code);
             }
+            ax.CommRqData(new Opt50001
+            {
+                Value = new[]
+                {
+                    "106V3000"
+                },
+                PrevNext = 0
+            });
             Delay.Instance.Run();
         };
         Delay.Instance.Milliseconds = 101;
         ax.API.CommConnect();
+    }
+    IEnumerable<string> GetCodeListByFutures()
+    {
+        var index = 0;
+        var sb = new StringBuilder();
+        var queue = new Queue<StringBuilder>();
+
+        foreach (var code in ax.API.GetFutureList().Split(';').Where(e => e[0] == '1'))
+        {
+            if (index++ % 100 == 99)
+            {
+                queue.Enqueue(sb);
+
+                sb = new StringBuilder();
+            }
+            sb.Append(code).Append(';');
+        }
+        queue.Enqueue(sb.Remove(sb.Length - 1, 1));
+
+        while (queue.TryDequeue(out StringBuilder? str))
+        {
+            yield return str.ToString();
+        }
     }
     IEnumerable<string> GetCodeListByMarket()
     {

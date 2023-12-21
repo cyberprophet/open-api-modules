@@ -41,6 +41,7 @@ partial class AnTalk
 
                     case OccursInStockEventArgs stock:
                         LookupDailyChart(stock.Code, -1);
+                        LookupMinuteChart(stock.Code, 1);
                         return;
                 }
             };
