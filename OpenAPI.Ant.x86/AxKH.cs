@@ -214,10 +214,27 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 }));
             }
         }
+        RequestForFuturesInfomation(axAPI.GetFutureList().Split(';'));
     }
-    void GetCodeListByFutures()
+    /// <summary>
+    /// 1(A)01.KOSPI200
+    /// 1(A)06.KOSDAQ150
+    /// </summary>
+    void RequestForFuturesInfomation(string[] futures)
     {
-        axAPI.GetFutureList().Split(';');
+        var futuresInventory = new List<string>(new[]
+        {
+            futures[0],
+            futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))]
+        });
+        foreach (var code in futuresInventory)
+        {
+            CommRqData(new OpenAPI.Entity.Opt50001
+            {
+                Value = [code],
+                PrevNext = 0
+            });
+        }
     }
     bool ServerType
     {

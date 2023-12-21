@@ -189,7 +189,7 @@ partial class AnTalk
                 _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
                 break;
 
-            case null:
+            case Entities.Kiwoom.Opt50001 or null:
 
                 return;
         }
