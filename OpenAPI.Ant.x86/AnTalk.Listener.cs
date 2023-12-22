@@ -7,6 +7,7 @@ using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 
@@ -29,11 +30,13 @@ partial class AnTalk
                 switch (resource)
                 {
                     case nameof(Transmission.Opt10081):
+                    case nameof(Transmission.Opt50030):
                         LookupDailyChart(code);
                         break;
 
                     case nameof(Transmission.Opt10080):
-                        LookupMinuteChart(code, 1);
+                    case nameof(Transmission.Opt50029):
+                        LookupMinuteChart(code);
                         break;
 
                     case nameof(Transmission.Opt10004):
@@ -50,6 +53,12 @@ partial class AnTalk
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10004));
 
                     case nameof(Transmission.Opt10004):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50030));
+
+                    case nameof(Transmission.Opt50030):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50029));
+
+                    case nameof(Transmission.Opt50029):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10080));
                 }
                 break;
@@ -168,12 +177,20 @@ partial class AnTalk
     {
         switch (e.Convey)
         {
+            case MultiOpt10081 dailyChart:
+                opt10081Collection.Enqueue(dailyChart);
+                return;
+
             case Entities.Kiwoom.Opt10080 minuteChart:
                 opt10080Collection.Enqueue(minuteChart);
                 return;
 
-            case MultiOpt10081 dailyChart:
-                opt10081Collection.Enqueue(dailyChart);
+            case Entities.Kiwoom.Opt50029 futureMinChart:
+                opt50029Collection.Enqueue(futureMinChart);
+                return;
+
+            case Entities.Kiwoom.Opt50030 futureDayChart:
+                opt50030Collection.Enqueue(futureDayChart);
                 return;
 
             case Entities.Kiwoom.OPTKWFID o when IsAdministrator is false:
@@ -199,9 +216,25 @@ partial class AnTalk
     {
         switch (e.Transmission)
         {
+            case OpenAPI.Entity.Opt50029 when Talk != null:
+
+                if (opt50029Collection.IsEmpty is false)
+                {
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, opt50029Collection);
+
+                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+
+                    if (HttpStatusCode.OK != response.StatusCode || positive && saveChanges != opt50029Collection.Count)
+                    {
+                        e.Transmission.PrevNext = 0;
+                    }
+                    opt50029Collection.Clear();
+                }
+                break;
+
             case OpenAPI.Entity.Opt10080 when Talk != null:
 
-                if (opt10080Collection.Count > 0)
+                if (opt10080Collection.IsEmpty is false)
                 {
                     var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, opt10080Collection);
 
@@ -212,6 +245,24 @@ partial class AnTalk
                         e.Transmission.PrevNext = 0;
                     }
                     opt10080Collection.Clear();
+                }
+                break;
+
+            case OpenAPI.Entity.Opt50030 when Talk != null:
+
+                while (opt50030Collection.TryDequeue(out var collection))
+                {
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, collection);
+
+                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+
+                    if (HttpStatusCode.OK == response.StatusCode && positive && saveChanges > 0)
+                    {
+                        continue;
+                    }
+                    opt50030Collection.Clear();
+
+                    e.Transmission.PrevNext = opt50030Collection.Count;
                 }
                 break;
 
@@ -242,6 +293,8 @@ partial class AnTalk
         switch (e.Transmission)
         {
             case OpenAPI.Entity.Opt10080:
+            case OpenAPI.Entity.Opt50029:
+            case OpenAPI.Entity.Opt50030:
 
                 break;
 
@@ -335,6 +388,8 @@ partial class AnTalk
     ];
 #endif
     readonly CoreWebView webView = new();
-    readonly Queue<MultiOpt10081> opt10081Collection = new();
-    readonly Queue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
+    readonly ConcurrentQueue<MultiOpt10081> opt10081Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt50029> opt50029Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt50030> opt50030Collection = new();
 }
