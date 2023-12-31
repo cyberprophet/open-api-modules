@@ -54,8 +54,16 @@ partial class AnTalk
     }
     void CheckOneSAccount(string accNo)
     {
-        axAPI.CommRqData(new OPW00004 { Value = [accNo, string.Empty, "0", "00"], PrevNext = 0 });
-        axAPI.CommRqData(new Opw00005 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
+        if ("31".Equals(accNo[^2..]))
+        {
+            axAPI.CommRqData(new OPW20010 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
+            axAPI.CommRqData(new Opw20007 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
+        }
+        else
+        {
+            axAPI.CommRqData(new OPW00004 { Value = [accNo, string.Empty, "0", "00"], PrevNext = 0 });
+            axAPI.CommRqData(new Opw00005 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
+        }
     }
     void LookupDailyChart(string code, int subtract = 0)
     {
