@@ -168,7 +168,7 @@ partial class AnTalk
                 break;
 
             case 0:
-
+                CheckOneSAccount(e.Securities.AccNo);
                 break;
         }
         _ = await Talk!.ExecutePostAsync(e.Securities);

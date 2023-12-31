@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace ShareInvest.Transmission;
 
-class Opt50001 : Constructor
+class OPW20010 : Constructor
 {
     internal override IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
@@ -14,15 +14,8 @@ class Opt50001 : Constructor
         }
         var response = OnReceiveTrSingleData(axAPI, e);
 
-        var now = DateTime.Now;
-
         response[Id[0]] = Value[0];
-        response[nameof(Entities.Kiwoom.Opt50001.Date)] = (now.DayOfWeek switch
-        {
-            DayOfWeek.Sunday => now.AddDays(-2),
-            DayOfWeek.Saturday => now.AddDays(-1),
-            _ => now
-        }).ToString("yyyyMMdd");
+        response[nameof(Entities.Assets.OPW20010.Date)] = DateTime.Now.ToString("d", TrConstructor.Culture);
 
         yield return JsonConvert.SerializeObject(response);
     }
