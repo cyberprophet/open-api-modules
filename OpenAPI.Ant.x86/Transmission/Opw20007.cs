@@ -16,8 +16,10 @@ class Opw20007 : Constructor
 
         var res = JsonConvert.DeserializeObject<OpenAPI.Entity.SingleOpw20007>(JsonConvert.SerializeObject(response));
 
-        _ = int.TryParse(res?.NumberOfOutputs, out int numberOfOutputs);
-
+        if (string.IsNullOrEmpty(res?.NumberOfOutputs) || int.TryParse(res.NumberOfOutputs, out int numberOfOutputs) && numberOfOutputs == 0)
+        {
+            yield break;
+        }
         foreach (var storage in OnReceiveTrMultiData(axAPI, e))
         {
             if (storage.Count == 0)
@@ -25,7 +27,6 @@ class Opw20007 : Constructor
                 continue;
             }
             storage[Id[0]] = Value[0];
-            storage[nameof(Entities.Assets.Opw20007.NumberOfOutputs)] = numberOfOutputs--.ToString("D4");
             storage[nameof(Entities.Assets.Opw20007.Date)] = DateTime.Now.ToString("d", TrConstructor.Culture);
 
             yield return JsonConvert.SerializeObject(storage);

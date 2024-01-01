@@ -35,13 +35,13 @@ partial class Kiwoom : Form
 
         ax.API.OnReceiveTrData += (sender, e) =>
         {
-            foreach (var str in ax.ConvertTrMultiData<string>(new Opt50029().Multiple, e))
+            foreach (var str in ax.ConvertTrMultiData<string>(new Opw20007().Multiple, e))
             {
                 textBox.Text = str;
 
                 Debug.WriteLine(str);
             }
-            Debug.WriteLine(ax.ConvertTrSingleData<string>(new Opt50029().Single, e));
+            Debug.WriteLine(ax.ConvertTrSingleData<string>(new Opw20007().Single, e));
         };
         ax.API.OnEventConnect += (sender, e) =>
         {
@@ -49,16 +49,19 @@ partial class Kiwoom : Form
             {
                 textBox.Text = e.nErrCode.ToString();
             }
+            /*
             foreach (var code in ax.API.GetFutureList().Split(';'))
             {
                 Debug.WriteLine(code);
             }
-            ax.CommRqData(new Opt50029
+            */
+            ax.CommRqData(new Opw20007
             {
                 Value = new[]
                 {
-                    "101V3000",
-                    "20231223"
+                    "",
+                    string.Empty,
+                    "00"
                 },
                 PrevNext = 0
             });
