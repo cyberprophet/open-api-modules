@@ -50,6 +50,26 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 
         return axAPI.CommConnect() == 0;
     }
+    internal void SendOrder(OpenAPI.Order o)
+    {
+        Delay.Instance.RequestTheMission(new Task(() =>
+        {
+            var order = axAPI.SendOrder(o.RQName, o.ScreenNo, o.AccNo, o.OrderType, o.Code, o.Qty, o.Price, o.HogaGb, o.OrgOrderNo);
+
+            OnReceiveErrMessage(o.RQName, order);
+        }));
+        Delay.Instance.Milliseconds = 0xC7;
+    }
+    internal void SendOrderFO(OpenAPI.OrderFO o)
+    {
+        Delay.Instance.RequestTheMission(new Task(() =>
+        {
+            var order = axAPI.SendOrderFO(o.RQName, o.ScreenNo, o.AccNo, o.Code, o.OrdKind, o.SlbyTp, o.OrdTp, o.Qty, o.Price, o.OrgOrdNo);
+
+            OnReceiveErrMessage(o.RQName, order);
+        }));
+        Delay.Instance.Milliseconds = 0xC7;
+    }
     internal bool ConnectState
     {
         get => axAPI.GetConnectState() == 1;
@@ -77,6 +97,13 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
     }
     void OnReceiveTrData(object _, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
+        if ("KOA".Equals(e.sTrCode[..3]))
+        {
+#if DEBUG
+            Debug.WriteLine(JsonConvert.SerializeObject(e));
+#endif
+            return;
+        }
         var typeName = string.Concat(typeof(Constructor).Namespace, '.', e.sTrCode);
 
         if (Assembly.GetExecutingAssembly().CreateInstance(typeName, true) is Constructor ctor && Cache.GetConstructor(e.sTrCode, e.sScrNo) is TR tr)
