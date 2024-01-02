@@ -2,7 +2,6 @@
 
 using ShareInvest.Hubs.Socket;
 using ShareInvest.Observers;
-using ShareInvest.OpenAPI;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
 
@@ -58,7 +57,7 @@ partial class AnTalk
             await Socket.Hub.StartAsync();
         }
     }
-    void SendOrderFO(OrderFO orderFO)
+    void SendOrderFO(OpenAPI.OrderFO orderFO)
     {
         axAPI.SendOrderFO(orderFO);
     }
@@ -116,6 +115,7 @@ partial class AnTalk
     {
         get; set;
     }
+    readonly ConcurrentDictionary<string, OpenAPI.Account> account = new();
     readonly ConcurrentDictionary<string, OpenAPI.Balance> balance = new();
     readonly ConcurrentDictionary<string, OpenAPI.Conclusion> conclusion = new();
 }
