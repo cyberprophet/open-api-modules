@@ -2,6 +2,7 @@
 
 using Newtonsoft.Json;
 
+using ShareInvest.Entities.Assets;
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
@@ -177,6 +178,52 @@ partial class AnTalk
     {
         switch (e.Convey)
         {
+            case BalOPW00004 bpw4 when string.IsNullOrEmpty(bpw4.Code) is false:
+
+                if (this.balance.TryGetValue(bpw4.Code, out var balance))
+                {
+                    balance.HoldingQuantity = Convert.ToInt32(bpw4.Quantity);
+                }
+                else
+                {
+                    this.balance[bpw4.Code] = new OpenAPI.Balance
+                    {
+                        HoldingQuantity = Convert.ToInt32(bpw4.Quantity)
+                    };
+                }
+                break;
+
+            case Entities.Assets.Opw20007 opw207 when string.IsNullOrEmpty(opw207.Code) is false:
+
+                if (this.balance.TryGetValue(opw207.Code, out var bal))
+                {
+                    bal.HoldingQuantity = Convert.ToInt32(opw207.Quantity);
+                    bal.QuantityAvailableForOrder = Convert.ToInt32(opw207.LiquidationPossibleQuantity);
+                }
+                else
+                {
+                    this.balance[opw207.Code] = new OpenAPI.Balance
+                    {
+                        HoldingQuantity = Convert.ToInt32(opw207.Quantity),
+                        QuantityAvailableForOrder = Convert.ToInt32(opw207.LiquidationPossibleQuantity)
+                    };
+                }
+                break;
+
+            case AccOPW00005 apw5 when string.IsNullOrEmpty(apw5.AccNo) is false:
+                account[apw5.AccNo] = new OpenAPI.Account
+                {
+                    OrderableCash = Convert.ToInt64(apw5.OrderableCash)
+                };
+                break;
+
+            case Entities.Assets.OPW20010 opw210 when string.IsNullOrEmpty(opw210.AccNo) is false:
+                account[opw210.AccNo] = new OpenAPI.Account
+                {
+                    OrderableCash = Convert.ToInt64(opw210.TotalOrderableAmount)
+                };
+                break;
+
             case MultiOpt10081 dailyChart:
                 opt10081Collection.Enqueue(dailyChart);
                 return;
@@ -332,8 +379,24 @@ partial class AnTalk
                             OrderQuantity = Convert.ToInt32(e.Data["주문수량"]),
                             UntradedQuantity = Convert.ToInt32(e.Data["미체결수량"]),
                             OrderPrice = Convert.ToDecimal(e.Data["주문가격"]),
-                            Code = e.Data["종목코드_업종코드"]
+                            Code = e.Data["종목코드_업종코드"],
+                            Tax = Convert.ToInt32(e.Data["당일매매세금"]),
+                            TradingFee = Convert.ToInt32(e.Data["당일매매수수료"]),
+                            UnitContractAmount = Convert.ToInt32(e.Data["단위체결량"]),
+                            UnitContractPrice = Convert.ToDecimal(e.Data["단위체결가"])
                         };
+                        break;
+
+                    case OrderState.체결 when Convert.ToInt32(e.Data["미체결수량"]) is int untradedQuantity && untradedQuantity != 0:
+
+                        if (conclusion.TryGetValue(e.Data["주문번호"], out var c))
+                        {
+                            c.Tax = Convert.ToInt32(e.Data["당일매매세금"]);
+                            c.TradingFee = Convert.ToInt32(e.Data["당일매매수수료"]);
+                            c.UnitContractAmount = Convert.ToInt32(e.Data["단위체결량"]);
+                            c.UnitContractPrice = Convert.ToDecimal(e.Data["단위체결가"]);
+                            c.UntradedQuantity = untradedQuantity;
+                        }
                         break;
 
                     case OrderState.체결 or OrderState.취소:
@@ -358,6 +421,8 @@ partial class AnTalk
                     balance.HoldingQuantity = Convert.ToInt32(e.Data["보유수량"]);
                     balance.QuantityAvailableForOrder = Convert.ToInt32(e.Data["주문가능수량"]);
                     balance.OrderStatus = (OrderStatus)Convert.ToInt32(e.Data["매도_매수구분"]);
+                    balance.TransactionQuantity = Convert.ToInt32(e.Data["당일순매수량"]);
+                    balance.TradingProfit = Convert.ToInt64(e.Data["당일총매도손익"]);
                 }
                 else
                 {
@@ -365,7 +430,9 @@ partial class AnTalk
                     {
                         HoldingQuantity = Convert.ToInt32(e.Data["보유수량"]),
                         QuantityAvailableForOrder = Convert.ToInt32(e.Data["주문가능수량"]),
-                        OrderStatus = (OrderStatus)Convert.ToInt32(e.Data["매도_매수구분"])
+                        OrderStatus = (OrderStatus)Convert.ToInt32(e.Data["매도_매수구분"]),
+                        TransactionQuantity = Convert.ToInt32(e.Data["당일순매수량"]),
+                        TradingProfit = Convert.ToInt64(e.Data["당일총매도손익"])
                     };
                 }
                 break;
