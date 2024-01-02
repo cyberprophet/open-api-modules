@@ -102,6 +102,12 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 #if DEBUG
             Debug.WriteLine(JsonConvert.SerializeObject(e));
 #endif
+            Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
+            {
+                Code = e.sRQName,
+                Title = e.sTrCode,
+                Screen = axAPI.GetCommData(e.sTrCode, e.sRQName, 0, "주문번호")
+            }));
             return;
         }
         var typeName = string.Concat(typeof(Constructor).Namespace, '.', e.sTrCode);
@@ -151,6 +157,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         switch (chejanType)
         {
             case ChejanType.주문체결:
+
                 foreach (var cs in Enum.GetValues<Conclusion>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
@@ -158,6 +165,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 break;
 
             case ChejanType.잔고:
+
                 foreach (var cs in Enum.GetValues<Balance>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
@@ -165,6 +173,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 break;
 
             case ChejanType.파생잔고:
+
                 foreach (var cs in Enum.GetValues<Derivatives>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
@@ -174,7 +183,16 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         if (Enum.GetName((ChejanType)chejanType) is string methodName)
         {
             Send?.Invoke(this, new TrMsgEventArgs(methodName, JsonConvert.SerializeObject(receiver)));
+
+            return;
         }
+#if DEBUG
+        Debug.WriteLine(new
+        {
+            Name = nameof(OnReceiveChejanData),
+            Gubun = e.sGubun
+        });
+#endif
     }
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {
