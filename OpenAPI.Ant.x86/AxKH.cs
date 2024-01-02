@@ -180,19 +180,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 }
                 break;
         }
-        if (Enum.GetName((ChejanType)chejanType) is string methodName)
-        {
-            Send?.Invoke(this, new TrMsgEventArgs(methodName, JsonConvert.SerializeObject(receiver)));
-
-            return;
-        }
-#if DEBUG
-        Debug.WriteLine(new
-        {
-            Name = nameof(OnReceiveChejanData),
-            Gubun = e.sGubun
-        });
-#endif
+        Send?.Invoke(this, new ChejanEventArgs((ChejanType)chejanType, receiver));
     }
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {

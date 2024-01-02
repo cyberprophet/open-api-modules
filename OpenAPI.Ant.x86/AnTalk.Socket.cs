@@ -6,6 +6,7 @@ using ShareInvest.OpenAPI;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
 
+using System.Collections.Concurrent;
 using System.Media;
 
 namespace ShareInvest;
@@ -115,4 +116,6 @@ partial class AnTalk
     {
         get; set;
     }
+    readonly ConcurrentDictionary<string, OpenAPI.Balance> balance = new();
+    readonly ConcurrentDictionary<string, OpenAPI.Conclusion> conclusion = new();
 }
