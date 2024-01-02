@@ -2,6 +2,7 @@
 
 using ShareInvest.Hubs.Socket;
 using ShareInvest.Observers;
+using ShareInvest.OpenAPI;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
 
@@ -35,6 +36,10 @@ partial class AnTalk
             {
                 switch (args)
                 {
+                    case OrderFOArgs kf:
+                        SendOrderFO(kf.OrderFO);
+                        return;
+
                     case AssetsEventArgs e:
                         CheckOneSAccount(e.AccNo);
                         return;
@@ -51,6 +56,10 @@ partial class AnTalk
 
             await Socket.Hub.StartAsync();
         }
+    }
+    void SendOrderFO(OrderFO orderFO)
+    {
+        axAPI.SendOrderFO(orderFO);
     }
     void CheckOneSAccount(string accNo)
     {

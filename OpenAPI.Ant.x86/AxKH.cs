@@ -50,6 +50,26 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 
         return axAPI.CommConnect() == 0;
     }
+    internal void SendOrder(OpenAPI.Order o)
+    {
+        Delay.Instance.RequestTheMission(new Task(() =>
+        {
+            var order = axAPI.SendOrder(o.RQName, o.ScreenNo, o.AccNo, o.OrderType, o.Code, o.Qty, o.Price, o.HogaGb, o.OrgOrderNo);
+
+            OnReceiveErrMessage(o.RQName, order);
+        }));
+        Delay.Instance.Milliseconds = 0xC7;
+    }
+    internal void SendOrderFO(OpenAPI.OrderFO o)
+    {
+        Delay.Instance.RequestTheMission(new Task(() =>
+        {
+            var order = axAPI.SendOrderFO(o.RQName, o.ScreenNo, o.AccNo, o.Code, o.OrdKind, o.SlbyTp, o.OrdTp, o.Qty, o.Price, o.OrgOrdNo);
+
+            OnReceiveErrMessage(o.RQName, order);
+        }));
+        Delay.Instance.Milliseconds = 0xC7;
+    }
     internal bool ConnectState
     {
         get => axAPI.GetConnectState() == 1;
@@ -77,6 +97,19 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
     }
     void OnReceiveTrData(object _, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
+        if ("KOA".Equals(e.sTrCode[..3]))
+        {
+#if DEBUG
+            Debug.WriteLine(JsonConvert.SerializeObject(e));
+#endif
+            Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
+            {
+                Code = e.sRQName,
+                Title = e.sTrCode,
+                Screen = axAPI.GetCommData(e.sTrCode, e.sRQName, 0, "주문번호")
+            }));
+            return;
+        }
         var typeName = string.Concat(typeof(Constructor).Namespace, '.', e.sTrCode);
 
         if (Assembly.GetExecutingAssembly().CreateInstance(typeName, true) is Constructor ctor && Cache.GetConstructor(e.sTrCode, e.sScrNo) is TR tr)
@@ -124,6 +157,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         switch (chejanType)
         {
             case ChejanType.주문체결:
+
                 foreach (var cs in Enum.GetValues<Conclusion>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
@@ -131,6 +165,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 break;
 
             case ChejanType.잔고:
+
                 foreach (var cs in Enum.GetValues<Balance>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
@@ -138,6 +173,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 break;
 
             case ChejanType.파생잔고:
+
                 foreach (var cs in Enum.GetValues<Derivatives>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
@@ -147,7 +183,16 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         if (Enum.GetName((ChejanType)chejanType) is string methodName)
         {
             Send?.Invoke(this, new TrMsgEventArgs(methodName, JsonConvert.SerializeObject(receiver)));
+
+            return;
         }
+#if DEBUG
+        Debug.WriteLine(new
+        {
+            Name = nameof(OnReceiveChejanData),
+            Gubun = e.sGubun
+        });
+#endif
     }
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {
