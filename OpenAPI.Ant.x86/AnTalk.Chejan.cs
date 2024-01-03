@@ -32,12 +32,12 @@ partial class AnTalk
                             OrderStatus = (OrderStatus)Convert.ToInt32(e.Data["매도수구분"]),
                             OrderQuantity = Convert.ToInt32(e.Data["주문수량"]),
                             UntradedQuantity = Convert.ToInt32(e.Data["미체결수량"]),
-                            OrderPrice = Convert.ToDecimal(e.Data["주문가격"]),
+                            OrderPrice = Convert.ToDouble(e.Data["주문가격"]),
                             Code = e.Data["종목코드_업종코드"],
                             Tax = Convert.ToInt32(e.Data["당일매매세금"]),
                             TradingFee = Convert.ToInt32(e.Data["당일매매수수료"]),
                             UnitContractAmount = Convert.ToInt32(e.Data["단위체결량"]),
-                            UnitContractPrice = Convert.ToDecimal(e.Data["단위체결가"])
+                            UnitContractPrice = Convert.ToDouble(e.Data["단위체결가"])
                         };
                         break;
 
@@ -48,7 +48,7 @@ partial class AnTalk
                             c.Tax = Convert.ToInt32(e.Data["당일매매세금"]);
                             c.TradingFee = Convert.ToInt32(e.Data["당일매매수수료"]);
                             c.UnitContractAmount = Convert.ToInt32(e.Data["단위체결량"]);
-                            c.UnitContractPrice = Convert.ToDecimal(e.Data["단위체결가"]);
+                            c.UnitContractPrice = Convert.ToDouble(e.Data["단위체결가"]);
                             c.UntradedQuantity = untradedQuantity;
                         }
                         break;
