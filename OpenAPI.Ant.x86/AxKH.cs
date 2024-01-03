@@ -1,7 +1,5 @@
 ﻿using AxKHOpenAPILib;
 
-using Newtonsoft.Json;
-
 using ShareInvest.Entities;
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
@@ -99,14 +97,13 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
     {
         if ("KOA".Equals(e.sTrCode[..3]))
         {
-#if DEBUG
-            Debug.WriteLine(JsonConvert.SerializeObject(e));
-#endif
+            var orderNumber = axAPI.GetCommData(e.sTrCode, e.sRQName, 0, "주문번호");
+
             Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
             {
                 Code = e.sRQName,
                 Title = e.sTrCode,
-                Screen = axAPI.GetCommData(e.sTrCode, e.sRQName, 0, "주문번호")
+                Screen = string.IsNullOrEmpty(orderNumber) ? e.sScrNo : orderNumber
             }));
             return;
         }
