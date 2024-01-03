@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
+using Newtonsoft.Json;
+
 using ShareInvest.Hubs.Socket;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
@@ -7,6 +9,7 @@ using ShareInvest.Properties;
 using ShareInvest.RealType;
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Media;
 
 namespace ShareInvest;
@@ -60,6 +63,59 @@ partial class AnTalk
     }
     void SendOrderFO(OpenAPI.OrderFO orderFO)
     {
+        double price = Convert.ToDouble(orderFO.Price), margin, commission;
+
+        if (string.IsNullOrEmpty(orderFO.AccNo) || this.account.TryGetValue(orderFO.AccNo, out var account) is false)
+        {
+            return;
+        }
+        switch (orderFO.Code?[..3])
+        {
+            case "101":
+                margin = price * Service.KospiTransactionMultiplier * Service.KospiConsignmentMarginRate * orderFO.Qty;
+                commission = price * Service.KospiTransactionMultiplier * Service.Commission * orderFO.Qty;
+                break;
+
+            case "106":
+                margin = price * Service.KosdaqTransactionMultiplier * Service.KosdaqConsignmentMarginRate * orderFO.Qty;
+                commission = price * Service.KosdaqTransactionMultiplier * Service.Commission * orderFO.Qty;
+                break;
+
+            default:
+#if DEBUG
+                Debug.WriteLine(JsonConvert.SerializeObject(orderFO, Formatting.Indented));
+#endif
+                return;
+        }
+        _ = this.balance.TryGetValue(orderFO.Code, out var balance);
+
+        bool isOrderAvailable = commission + margin < account.OrderableCash,
+             isLiquidationOrder = balance?.QuantityAvailableForOrder > orderFO.Qty && (int)balance.OrderStatus != Convert.ToInt32(orderFO.SlbyTp);
+
+        if (isOrderAvailable is false && isLiquidationOrder is false)
+        {
+            foreach (var e in from kv in conclusion
+                              where orderFO.Code.Equals(kv.Value.Code) && (price > kv.Value.OrderPrice && OrderStatus.매수 == kv.Value.OrderStatus ||
+                                                                           price < kv.Value.OrderPrice && OrderStatus.매도 == kv.Value.OrderStatus)
+                              orderby kv.Key descending
+                              select new
+                              {
+                                  OrderNumber = kv.Key,
+                                  kv.Value.UntradedQuantity,
+                                  kv.Value.OrderPrice,
+                                  kv.Value.OrderStatus
+                              })
+            {
+                orderFO.OrdKind = 3;
+                orderFO.Price = e.OrderPrice.ToString("F2");
+                orderFO.Qty = e.UntradedQuantity;
+                orderFO.OrgOrdNo = e.OrderNumber;
+                orderFO.SlbyTp = ((int)e.OrderStatus).ToString("D1");
+
+                axAPI.SendOrderFO(orderFO);
+            }
+            return;
+        }
         axAPI.SendOrderFO(orderFO);
     }
     void CheckOneSAccount(string accNo)
