@@ -4,7 +4,9 @@ using ShareInvest.Hubs.Socket;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 using ShareInvest.Properties;
+using ShareInvest.RealType;
 
+using System.Collections.Concurrent;
 using System.Media;
 
 namespace ShareInvest;
@@ -35,12 +37,17 @@ partial class AnTalk
             {
                 switch (args)
                 {
+                    case OrderFOArgs kf:
+                        SendOrderFO(kf.OrderFO);
+                        return;
+
                     case AssetsEventArgs e:
                         CheckOneSAccount(e.AccNo);
                         return;
 
                     case OccursInStockEventArgs stock:
                         LookupDailyChart(stock.Code, -1);
+                        LookupMinuteChart(stock.Code, 1);
                         return;
                 }
             };
@@ -51,26 +58,55 @@ partial class AnTalk
             await Socket.Hub.StartAsync();
         }
     }
+    void SendOrderFO(OpenAPI.OrderFO orderFO)
+    {
+        axAPI.SendOrderFO(orderFO);
+    }
     void CheckOneSAccount(string accNo)
     {
-        axAPI.CommRqData(new OPW00004
+        if ("31".Equals(accNo[^2..]))
         {
-            PrevNext = 0,
-            Value = [accNo, string.Empty, "0", "00"]
-        });
-        axAPI.CommRqData(new Opw00005
+            axAPI.CommRqData(new OPW20010 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
+            axAPI.CommRqData(new Opw20007 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
+        }
+        else
         {
-            PrevNext = 0,
-            Value = [accNo, string.Empty, "00"]
-        });
+            axAPI.CommRqData(new OPW00004 { Value = [accNo, string.Empty, "0", "00"], PrevNext = 0 });
+            axAPI.CommRqData(new Opw00005 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
+        }
     }
     void LookupDailyChart(string code, int subtract = 0)
     {
-        axAPI.CommRqData(new Opt10081
+        var baseDate = DateTime.Now.AddDays(subtract).ToString("yyyyMMdd");
+
+        switch (code.Length)
         {
-            PrevNext = 0,
-            Value = [code, DateTime.Now.AddDays(subtract).ToString("yyyyMMdd"), "1"]
-        });
+            case 6:
+                axAPI.CommRqData(new Opt10081 { Value = [code, baseDate, "1"], PrevNext = 0 });
+                break;
+
+            case 8:
+                axAPI.CommRqData(new Opt50030 { Value = [code, baseDate], PrevNext = 0 });
+                break;
+        }
+    }
+    /// <summary>
+    /// 수정주가구분 1:유상증자, 2:무상증자, 4:배당락, 8:액면분할, 16:액면병합, 32:기업합병, 64:감자, 256:권리락
+    /// </summary>
+    /// <param name="code">종목코드</param>
+    /// <param name="tick">1:1분, 3:3분, 5:5분, 10:10분, 15:15분, 30:30분, 45:45분, 60:60분</param>
+    void LookupMinuteChart(string code, int tick = 1)
+    {
+        switch (code.Length)
+        {
+            case 6:
+                axAPI.CommRqData(new Opt10080 { Value = [code, tick.ToString(), "1"], PrevNext = 0 });
+                break;
+
+            case 8:
+                axAPI.CommRqData(new Opt50029 { Value = [code, tick.ToString()], PrevNext = 0 });
+                break;
+        }
     }
     void LookupStockQuote(string code)
     {
@@ -80,4 +116,8 @@ partial class AnTalk
     {
         get; set;
     }
+    readonly ConcurrentDictionary<string, OpenAPI.Account> account = new();
+    readonly ConcurrentDictionary<string, OpenAPI.Balance> balance = new();
+    readonly ConcurrentDictionary<string, OpenAPI.Conclusion> conclusion = new();
+    readonly ConcurrentDictionary<string, PriorityQuote> priorityQuote = new();
 }

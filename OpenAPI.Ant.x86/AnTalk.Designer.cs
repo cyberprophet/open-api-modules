@@ -1,6 +1,7 @@
 ﻿using ShareInvest.Properties;
 
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace ShareInvest;
 
@@ -25,8 +26,18 @@ partial class AnTalk
             {
                 if (notifyIcon.Icon is not null)
                 {
-                    _ = Socket.RemoveFromGroupAsync(serialKey);
-
+                    try
+                    {
+                        _ = Socket.RemoveFromGroupAsync(serialKey);
+                    }
+                    catch (Exception ex)
+                    {
+#if DEBUG
+                        Debug.WriteLine(ex.Message);
+#else
+                        Console.WriteLine(ex.Message);
+#endif
+                    }
                     notifyIcon.Icon.Dispose();
                 }
                 notifyIcon.Dispose();

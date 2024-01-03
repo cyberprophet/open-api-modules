@@ -97,6 +97,15 @@ namespace ShareInvest.Properties {
         }
         
         /// <summary>
+        ///   Naver과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        internal static string INQUIRY {
+            get {
+                return ResourceManager.GetString("INQUIRY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   publish과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         internal static string PUBLISH {
@@ -111,6 +120,15 @@ namespace ShareInvest.Properties {
         internal static string REGISTER {
             get {
                 return ResourceManager.GetString("REGISTER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   테마별 시세 조회 중지과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        internal static string SEARCHINGTHEME {
+            get {
+                return ResourceManager.GetString("SEARCHINGTHEME", resourceCulture);
             }
         }
         
@@ -181,6 +199,15 @@ namespace ShareInvest.Properties {
             get {
                 object obj = ResourceManager.GetObject("T6", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   테마별 시세 조회과(와) 유사한 지역화된 문자열을 찾습니다.
+        /// </summary>
+        internal static string THEME {
+            get {
+                return ResourceManager.GetString("THEME", resourceCulture);
             }
         }
         

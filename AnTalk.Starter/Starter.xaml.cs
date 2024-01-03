@@ -29,12 +29,16 @@ public partial class Starter : Window
             },
             new System.Windows.Forms.ToolStripMenuItem
             {
+                Name = nameof(Properties.Resources.THEME),
+                Text = SearchingTheme ? Properties.Resources.SEARCHINGTHEME : Properties.Resources.THEME
+            },
+            new System.Windows.Forms.ToolStripMenuItem
+            {
                 Name = nameof(Properties.Resources.EXIT),
                 Text = Properties.Resources.EXIT
             }
         });
-        icons =
-        [
+        icons = [
             Properties.Resources.T1,
             Properties.Resources.T2,
             Properties.Resources.T3,
@@ -56,21 +60,41 @@ public partial class Starter : Window
         };
         menu.ItemClicked += (_, e) =>
         {
-            if (nameof(Properties.Resources.REGISTER).Equals(e.ClickedItem?.Name))
+            switch (e.ClickedItem?.Name)
             {
-                e.ClickedItem.Text = Properties.Resources.UNREGISTER.Equals(e.ClickedItem.Text) ? Properties.Resources.REGISTER : Properties.Resources.UNREGISTER;
+                case nameof(Properties.Resources.THEME):
+                    SearchingTheme = SearchingTheme is false;
 
-                var fileName = string.Concat(Assembly.GetEntryAssembly()?.ManifestModule.Name[..^4], ".exe");
+                    _ = Task.Run(async () =>
+                    {
+                        var path = string.Empty;
 
-                register.IsWritable = register.IsWritable is false;
+                        while (SearchingTheme)
+                        {
+                            if (Update != null && string.IsNullOrEmpty(path))
+                            {
+                                path = await Update.InquiryAsync();
+                            }
+                            await Task.Delay(0x400 * Update.InquiryProcess(path));
+                        }
+                    });
+                    e.ClickedItem.Text = SearchingTheme ? Properties.Resources.SEARCHINGTHEME : Properties.Resources.THEME;
+                    return;
 
-                var res = register.AddStartupProgram(Properties.Resources.ANT, fileName);
+                case nameof(Properties.Resources.REGISTER):
+                    e.ClickedItem.Text = Properties.Resources.UNREGISTER.Equals(e.ClickedItem.Text) ? Properties.Resources.REGISTER : Properties.Resources.UNREGISTER;
 
-                if (string.IsNullOrEmpty(res) is false && notifyIcon != null)
-                {
-                    notifyIcon.Text = res;
-                }
-                return;
+                    var fileName = string.Concat(Assembly.GetEntryAssembly()?.ManifestModule.Name[..^4], ".exe");
+
+                    register.IsWritable = register.IsWritable is false;
+
+                    var res = register.AddStartupProgram(Properties.Resources.ANT, fileName);
+
+                    if (string.IsNullOrEmpty(res) is false && notifyIcon != null)
+                    {
+                        notifyIcon.Text = res;
+                    }
+                    return;
             }
             IsUserClosing = true;
 
@@ -80,6 +104,8 @@ public partial class Starter : Window
         {
             if (IsVisible == false)
             {
+                webView?.Reload();
+
                 Show();
             }
             else
@@ -93,8 +119,6 @@ public partial class Starter : Window
             {
                 if (Update != null)
                 {
-                    notifyIcon.Icon = icons[DateTime.Now.Second % icons.Length];
-
                     if (Update.BeOutOperation)
                     {
                         timer.Interval = new TimeSpan(1, 1, 1, 0xC);
@@ -107,6 +131,7 @@ public partial class Starter : Window
 
                         timer.Interval = await Update.RunAsync();
                     }
+                    notifyIcon.Icon = icons[DateTime.Now.Second % icons.Length];
                     return;
                 }
                 if (string.IsNullOrEmpty(webView.AccessToken) is false)
@@ -160,6 +185,10 @@ public partial class Starter : Window
     bool IsRegistered
     {
         get => register.GetValue(Properties.Resources.ANT);
+    }
+    bool SearchingTheme
+    {
+        get; set;
     }
     readonly System.Windows.Forms.ContextMenuStrip menu;
     readonly System.Windows.Forms.NotifyIcon notifyIcon;

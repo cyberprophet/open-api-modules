@@ -1,7 +1,5 @@
 ﻿using AxKHOpenAPILib;
 
-using Newtonsoft.Json;
-
 using ShareInvest.Entities;
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
@@ -50,6 +48,26 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 
         return axAPI.CommConnect() == 0;
     }
+    internal void SendOrder(OpenAPI.Order o)
+    {
+        Delay.Instance.RequestTheMission(new Task(() =>
+        {
+            var order = axAPI.SendOrder(o.RQName, o.ScreenNo, o.AccNo, o.OrderType, o.Code, o.Qty, o.Price, o.HogaGb, o.OrgOrderNo);
+
+            OnReceiveErrMessage(o.RQName, order);
+        }));
+        Delay.Instance.Milliseconds = 0xC7;
+    }
+    internal void SendOrderFO(OpenAPI.OrderFO o)
+    {
+        Delay.Instance.RequestTheMission(new Task(() =>
+        {
+            var order = axAPI.SendOrderFO(o.RQName, o.ScreenNo, o.AccNo, o.Code, o.OrdKind, o.SlbyTp, o.OrdTp, o.Qty, o.Price, o.OrgOrdNo);
+
+            OnReceiveErrMessage(o.RQName, order);
+        }));
+        Delay.Instance.Milliseconds = 0xC7;
+    }
     internal bool ConnectState
     {
         get => axAPI.GetConnectState() == 1;
@@ -77,6 +95,18 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
     }
     void OnReceiveTrData(object _, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
+        if ("KOA".Equals(e.sTrCode[..3]))
+        {
+            var orderNumber = axAPI.GetCommData(e.sTrCode, e.sRQName, 0, "주문번호");
+
+            Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
+            {
+                Code = e.sRQName,
+                Title = e.sTrCode,
+                Screen = string.IsNullOrEmpty(orderNumber) ? e.sScrNo : orderNumber
+            }));
+            return;
+        }
         var typeName = string.Concat(typeof(Constructor).Namespace, '.', e.sTrCode);
 
         if (Assembly.GetExecutingAssembly().CreateInstance(typeName, true) is Constructor ctor && Cache.GetConstructor(e.sTrCode, e.sScrNo) is TR tr)
@@ -124,6 +154,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         switch (chejanType)
         {
             case ChejanType.주문체결:
+
                 foreach (var cs in Enum.GetValues<Conclusion>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
@@ -131,6 +162,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 break;
 
             case ChejanType.잔고:
+
                 foreach (var cs in Enum.GetValues<Balance>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
@@ -138,16 +170,14 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 break;
 
             case ChejanType.파생잔고:
+
                 foreach (var cs in Enum.GetValues<Derivatives>())
                 {
                     receiver[cs.ToString()] = axAPI.GetChejanData((int)cs).Trim();
                 }
                 break;
         }
-        if (Enum.GetName((ChejanType)chejanType) is string methodName)
-        {
-            Send?.Invoke(this, new TrMsgEventArgs(methodName, JsonConvert.SerializeObject(receiver)));
-        }
+        Send?.Invoke(this, new ChejanEventArgs((ChejanType)chejanType, receiver));
     }
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {
@@ -213,6 +243,27 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                     OnReceiveErrMessage(tr.RQName, axAPI.CommKwRqData(tr.Value[0], tr.PrevNext, nCodeCount, 0, tr.RQName, tr.ScreenNo));
                 }));
             }
+        }
+        RequestForFuturesInfomation(axAPI.GetFutureList().Split(';'));
+    }
+    /// <summary>
+    /// 1(A)01.KOSPI200
+    /// 1(A)06.KOSDAQ150
+    /// </summary>
+    void RequestForFuturesInfomation(string[] futures)
+    {
+        var futuresInventory = new List<string>(new[]
+        {
+            futures[0],
+            futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))]
+        });
+        foreach (var code in futuresInventory)
+        {
+            CommRqData(new OpenAPI.Entity.Opt50001
+            {
+                Value = [code],
+                PrevNext = 0
+            });
         }
     }
     bool ServerType

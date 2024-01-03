@@ -2,11 +2,12 @@
 
 using Newtonsoft.Json;
 
+using ShareInvest.Entities.Assets;
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
-using ShareInvest.Properties;
 
+using System.Collections.Concurrent;
 using System.Net;
 
 namespace ShareInvest;
@@ -28,7 +29,13 @@ partial class AnTalk
                 switch (resource)
                 {
                     case nameof(Transmission.Opt10081):
+                    case nameof(Transmission.Opt50030):
                         LookupDailyChart(code);
+                        break;
+
+                    case nameof(Transmission.Opt10080):
+                    case nameof(Transmission.Opt50029):
+                        LookupMinuteChart(code);
                         break;
 
                     case nameof(Transmission.Opt10004):
@@ -37,8 +44,23 @@ partial class AnTalk
                 }
                 break;
 
-            case HttpStatusCode.NotFound when nameof(Transmission.Opt10081).Equals(resource):
-                return await RequestTransmissionAsync(nameof(Transmission.Opt10004));
+            case HttpStatusCode.NotFound:
+
+                switch (resource)
+                {
+                    case nameof(Transmission.Opt10081):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt10004));
+
+                    case nameof(Transmission.Opt10004):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50030));
+
+                    case nameof(Transmission.Opt50030):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50029));
+
+                    case nameof(Transmission.Opt50029):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt10080));
+                }
+                break;
         }
         return 0x259;
     }
@@ -57,29 +79,6 @@ partial class AnTalk
             _ = BeginInvoke(Dispose);
         }
         notifyIcon.Text = $"{DateTime.Now:g}\n[{Socket?.Hub.State}] {exception?.Message ?? string.Empty}";
-    }
-    async Task OnReceiveMessage(RealMsgEventArgs e)
-    {
-        if (IsAdministrator && HubConnectionState.Connected == Socket?.Hub.State)
-        {
-            await Socket.Hub.SendAsync(e.Type, e.Key, e.Data);
-        }
-        if (Resources.OPERATION.Equals(e.Type))
-        {
-            var marketOperation = Operation.Get(e.Data.Split('\t')[0]);
-
-            Delay.Instance.Milliseconds = marketOperation switch
-            {
-                MarketOperation.장시작 => worksWithMarketOperation(),
-
-                MarketOperation.장마감 => await RequestTransmissionAsync(nameof(Opt10081)),
-
-                _ => 0x259
-            };
-            Cache.MarketOperation = marketOperation;
-
-            notifyIcon.Text = $"{DateTime.Now:G}\n{Enum.GetName(marketOperation)}";
-        }
     }
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
@@ -107,7 +106,7 @@ partial class AnTalk
             {
                 DayOfWeek.Sunday or DayOfWeek.Saturday => true,
 
-                _ => now.Hour < 7 || now.Hour >= 15
+                _ => now.Hour < 7 || now.Hour >= 15 && now.Minute > 30 || now.Hour > 15
             };
             if (string.IsNullOrEmpty(e.Securities.MacAddress) is false && Request.IsUsingHoursUnit)
             {
@@ -133,93 +132,10 @@ partial class AnTalk
                 break;
 
             case 0:
-
+                CheckOneSAccount(e.Securities.AccNo);
                 break;
         }
         _ = await Talk!.ExecutePostAsync(e.Securities);
-    }
-    async Task OnReceiveMessage(JsonMsgEventArgs e)
-    {
-        switch (e.Convey)
-        {
-            case MultiOpt10081 dailyChart:
-                opt10081Collection.Enqueue(dailyChart);
-                return;
-
-            case Entities.Kiwoom.OPTKWFID o when IsAdministrator is false:
-
-                if (TrConstructor.EventOccursInStock(o.Current) is false)
-                {
-                    return;
-                }
-                await Socket!.Hub.SendAsync(nameof(TrConstructor.EventOccursInStock), o.Code, char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]);
-                return;
-
-            case Entities.Kiwoom.Opt10004:
-                _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
-                break;
-
-            case null:
-
-                return;
-        }
-        _ = await Talk!.ExecutePostAsync(e.Convey);
-    }
-    async Task OnReceiveMessage(TransmissionEventArgs e)
-    {
-        switch (e.Transmission)
-        {
-            case Opt10081 when Talk != null:
-
-                while (opt10081Collection.TryDequeue(out var collection))
-                {
-                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, collection);
-
-                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
-
-                    if (HttpStatusCode.OK == response.StatusCode && positive && saveChanges > 0)
-                    {
-                        continue;
-                    }
-                    opt10081Collection.Clear();
-
-                    e.Transmission.PrevNext = opt10081Collection.Count;
-                }
-                break;
-        }
-        if (e.Transmission.PrevNext == 2)
-        {
-            axAPI.CommRqData(e.Transmission);
-
-            return;
-        }
-        switch (e.Transmission)
-        {
-            case Opt10081 when DateTime.Now.ToString("yyyyMMdd").Equals(e.Transmission.Value?[1]):
-
-                break;
-
-            default:
-
-                return;
-        }
-        Delay.Instance.Milliseconds = await RequestTransmissionAsync(e.Transmission.TrCode);
-    }
-    async Task OnReceiveMessage(ChejanEventArgs e)
-    {
-        if (e.Convey is Chejan chejan && Talk != null)
-        {
-            chejan.Lookup = DateTime.Now.Ticks;
-
-            _ = await Talk.ExecutePostAsync(e.Convey);
-        }
-    }
-    async Task OnReceiveMessage(TrMsgEventArgs e)
-    {
-        if (Socket != null)
-        {
-            await Socket.Hub.SendAsync(e.HubMethodName, e.Json);
-        }
     }
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
@@ -228,8 +144,6 @@ partial class AnTalk
             await (e switch
             {
                 RealMsgEventArgs rMsg => OnReceiveMessage(rMsg),
-
-                TrMsgEventArgs cMsg => OnReceiveMessage(cMsg),
 
                 ChejanEventArgs cjMsg => OnReceiveMessage(cjMsg),
 
@@ -273,6 +187,20 @@ partial class AnTalk
         "0100",
         "0106"
     ];
+#if DEBUG
+    readonly string[] realTypes =
+    [
+        "주식호가잔량",
+        "주식체결",
+        "주식우선호가",
+        "종목프로그램매매",
+        "주식당일거래원",
+        "주식예상체결"
+    ];
+#endif
     readonly CoreWebView webView = new();
-    readonly Queue<MultiOpt10081> opt10081Collection = new();
+    readonly ConcurrentQueue<MultiOpt10081> opt10081Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt50029> opt50029Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt50030> opt50030Collection = new();
 }
