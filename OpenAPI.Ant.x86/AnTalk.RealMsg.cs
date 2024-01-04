@@ -89,6 +89,8 @@ partial class AnTalk
                     {
                         MarketOperation.장시작 => worksWithMarketOperation(),
 
+                        MarketOperation.선옵_장마감전_동시호가_시작 => LiquidateInPrinciple(),
+
                         MarketOperation.장마감 => await RequestTransmissionAsync(nameof(Opt10081)),
 
                         _ => 0x259
@@ -111,5 +113,57 @@ partial class AnTalk
             });
         }
 #endif
+    }
+    int LiquidateInPrinciple()
+    {
+        foreach (var con in from fc in conclusion
+                            where fc.Value.Code?.Length == 0x8 && "시장가".Equals(fc.Value.TradedClassification) is false
+                            select new
+                            {
+                                fc.Value.UntradedQuantity,
+                                fc.Value.AccNo,
+                                fc.Value.Code,
+                                OrgOrdNo = string.IsNullOrEmpty(fc.Value.OrgOrdNo) || fc.Value.OrgOrdNo.All(e => '0'.Equals(e)) ? fc.Key : fc.Value.OrgOrdNo
+                            })
+        {
+            axAPI.SendOrderFO(new OpenAPI.OrderFO
+            {
+                AccNo = con.AccNo,
+                Code = con.Code,
+                OrdKind = 3,
+                OrgOrdNo = con.OrgOrdNo,
+                Qty = con.UntradedQuantity,
+                RQName = con.Code
+            });
+        }
+        foreach (var bal in from fb in balance
+                            where 0x8 == fb.Key.Length
+                            select new
+                            {
+                                Code = fb.Key,
+                                fb.Value.AccNo,
+                                fb.Value.QuantityAvailableForOrder,
+                                fb.Value.OrderStatus
+                            })
+        {
+            if (conclusion.Any(e => bal.Code.Equals(e.Value.Code) &&
+                                    bal.QuantityAvailableForOrder == e.Value.UntradedQuantity &&
+                                    bal.OrderStatus != e.Value.OrderStatus &&
+                                    "시장가".Equals(e.Value.TradedClassification)))
+            {
+                continue;
+            }
+            axAPI.SendOrderFO(new OpenAPI.OrderFO
+            {
+                AccNo = bal.AccNo,
+                Code = bal.Code,
+                OrdTp = "3",
+                Price = string.Empty,
+                Qty = bal.QuantityAvailableForOrder,
+                RQName = bal.Code,
+                SlbyTp = OrderStatus.매도 == bal.OrderStatus ? "2" : "1"
+            });
+        }
+        return 0x259;
     }
 }

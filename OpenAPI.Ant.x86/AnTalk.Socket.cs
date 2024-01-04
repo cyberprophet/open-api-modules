@@ -92,28 +92,6 @@ partial class AnTalk
         if (commission + margin < account.OrderableCash || balance?.QuantityAvailableForOrder >= orderFO.Qty && (int)balance.OrderStatus != Convert.ToInt32(orderFO.SlbyTp))
         {
             axAPI.SendOrderFO(orderFO);
-
-            return;
-        }
-        foreach (var e in from kv in conclusion
-                          where orderFO.Code.Equals(kv.Value.Code) && (price > kv.Value.OrderPrice && OrderStatus.매수 == kv.Value.OrderStatus ||
-                                                                       price < kv.Value.OrderPrice && OrderStatus.매도 == kv.Value.OrderStatus)
-                          orderby kv.Key descending
-                          select new
-                          {
-                              OrderNumber = kv.Key,
-                              kv.Value.UntradedQuantity,
-                              kv.Value.OrderPrice,
-                              kv.Value.OrderStatus
-                          })
-        {
-            orderFO.OrdKind = 3;
-            orderFO.Price = e.OrderPrice.ToString("F2");
-            orderFO.Qty = e.UntradedQuantity;
-            orderFO.OrgOrdNo = e.OrderNumber;
-            orderFO.SlbyTp = ((int)e.OrderStatus).ToString("D1");
-
-            axAPI.SendOrderFO(orderFO);
         }
     }
     void CheckOneSAccount(string accNo)

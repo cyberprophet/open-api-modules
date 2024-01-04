@@ -22,7 +22,8 @@ partial class AnTalk
                 {
                     this.balance[bpw4.Code] = new OpenAPI.Balance
                     {
-                        HoldingQuantity = Convert.ToInt32(bpw4.Quantity)
+                        HoldingQuantity = Convert.ToInt32(bpw4.Quantity),
+                        AccNo = bpw4.AccNo
                     };
                 }
                 break;
@@ -39,7 +40,8 @@ partial class AnTalk
                     this.balance[opw207.Code] = new OpenAPI.Balance
                     {
                         HoldingQuantity = Convert.ToInt32(opw207.Quantity),
-                        QuantityAvailableForOrder = Convert.ToInt32(opw207.LiquidationPossibleQuantity)
+                        QuantityAvailableForOrder = Convert.ToInt32(opw207.LiquidationPossibleQuantity),
+                        AccNo = opw207.AccNo
                     };
                 }
                 break;
