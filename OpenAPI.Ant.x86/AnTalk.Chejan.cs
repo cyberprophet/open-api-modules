@@ -37,25 +37,20 @@ partial class AnTalk
                             Code = e.Data["종목코드_업종코드"],
                             AccNo = e.Data["계좌번호"]
                         };
-                        CheckOneSAccount(e.Data["주문업무분류"], e.Data["계좌번호"]);
                         break;
 
-                    case OrderState.체결 when Convert.ToInt32(e.Data["미체결수량"]) is int untradedQuantity:
+                    case OrderState.체결 when Convert.ToInt32(e.Data["미체결수량"]) is int untradedQty && untradedQty > 0:
 
-                        if (untradedQuantity != 0 && conclusion.TryGetValue(e.Data["주문번호"], out var c))
+                        if (conclusion.TryGetValue(e.Data["주문번호"], out var c))
                         {
                             c.UnitContractAmount = Convert.ToInt32(e.Data["단위체결량"]);
                             c.UnitContractPrice = Convert.ToDouble(e.Data["단위체결가"]);
-                            c.UntradedQuantity = untradedQuantity;
-                        }
-                        else
-                        {
-                            _ = conclusion.TryRemove(e.Data["주문번호"], out var _);
+                            c.UntradedQuantity = untradedQty;
                         }
                         break;
 
-                    case OrderState.취소 when conclusion.TryRemove(e.Data["주문번호"], out var _):
-                        CheckOneSAccount(e.Data["주문업무분류"], e.Data["계좌번호"]);
+                    case OrderState.체결 or OrderState.취소 when conclusion.TryRemove(e.Data["주문번호"], out var _):
+
                         break;
 
                     case OrderState.확인:
@@ -67,6 +62,7 @@ partial class AnTalk
                         });
                         break;
                 }
+                CheckOneSAccount(e.Data["주문업무분류"], e.Data["계좌번호"]);
                 break;
 
             case ChejanType.잔고 or ChejanType.파생잔고:
