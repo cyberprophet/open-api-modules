@@ -44,6 +44,14 @@ partial class AnTalk
                         SendOrderFO(kf.OrderFO);
                         return;
 
+                    case RenewBalanceArgs rb:
+                        axAPI.CommRqData(new Opw20007
+                        {
+                            Value = [rb.AccNo, string.Empty, "00"],
+                            PrevNext = 0
+                        });
+                        return;
+
                     case AssetsEventArgs e:
                         CheckOneSAccount(e.AccNo);
                         return;
