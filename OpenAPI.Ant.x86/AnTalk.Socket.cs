@@ -40,7 +40,7 @@ partial class AnTalk
             {
                 switch (args)
                 {
-                    case OrderFOArgs kf:
+                    case OrderFOArgs kf when string.IsNullOrEmpty(kf.OrderFO.Strategics) is false:
                         SendOrderFO(kf.OrderFO);
                         return;
 
