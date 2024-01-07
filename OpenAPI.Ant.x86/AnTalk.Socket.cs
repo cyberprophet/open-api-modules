@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 
+using Newtonsoft.Json;
+
 using ShareInvest.Hubs.Socket;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
@@ -7,6 +9,7 @@ using ShareInvest.Properties;
 using ShareInvest.RealType;
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Media;
 
 namespace ShareInvest;
@@ -37,8 +40,16 @@ partial class AnTalk
             {
                 switch (args)
                 {
-                    case OrderFOArgs kf:
+                    case OrderFOArgs kf when string.IsNullOrEmpty(kf.OrderFO.Strategics) is false:
                         SendOrderFO(kf.OrderFO);
+                        return;
+
+                    case RenewBalanceArgs rb:
+                        axAPI.CommRqData(new Opw20007
+                        {
+                            Value = [rb.AccNo, string.Empty, "00"],
+                            PrevNext = 0
+                        });
                         return;
 
                     case AssetsEventArgs e:
@@ -60,7 +71,36 @@ partial class AnTalk
     }
     void SendOrderFO(OpenAPI.OrderFO orderFO)
     {
-        axAPI.SendOrderFO(orderFO);
+        double price = Convert.ToDouble(orderFO.Price), margin, commission;
+
+        if (string.IsNullOrEmpty(orderFO.AccNo) || this.account.TryGetValue(orderFO.AccNo, out var account) is false)
+        {
+            return;
+        }
+        switch (orderFO.Code?[..3])
+        {
+            case "101":
+                margin = price * Service.KospiTransactionMultiplier * Service.KospiConsignmentMarginRate * orderFO.Qty;
+                commission = price * Service.KospiTransactionMultiplier * Service.Commission * orderFO.Qty;
+                break;
+
+            case "106":
+                margin = price * Service.KosdaqTransactionMultiplier * Service.KosdaqConsignmentMarginRate * orderFO.Qty;
+                commission = price * Service.KosdaqTransactionMultiplier * Service.Commission * orderFO.Qty;
+                break;
+
+            default:
+#if DEBUG
+                Debug.WriteLine(JsonConvert.SerializeObject(orderFO, Formatting.Indented));
+#endif
+                return;
+        }
+        _ = this.balance.TryGetValue(orderFO.Code, out var balance);
+
+        if (commission + margin < account.OrderableCash || balance?.QuantityAvailableForOrder >= orderFO.Qty && (int)balance.OrderStatus != Convert.ToInt32(orderFO.SlbyTp))
+        {
+            axAPI.SendOrderFO(orderFO);
+        }
     }
     void CheckOneSAccount(string accNo)
     {

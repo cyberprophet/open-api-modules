@@ -28,33 +28,29 @@ partial class AnTalk
                     case OrderState.접수:
                         conclusion[e.Data["주문번호"]] = new OpenAPI.Conclusion
                         {
-                            OriginalOrderNumber = e.Data["원주문번호"],
+                            OrgOrdNo = e.Data["원주문번호"],
                             OrderStatus = (OrderStatus)Convert.ToInt32(e.Data["매도수구분"]),
                             OrderQuantity = Convert.ToInt32(e.Data["주문수량"]),
+                            OrderPrice = Convert.ToDouble(e.Data["주문가격"]),
                             UntradedQuantity = Convert.ToInt32(e.Data["미체결수량"]),
-                            OrderPrice = Convert.ToDecimal(e.Data["주문가격"]),
+                            TradedClassification = e.Data["매매구분"],
                             Code = e.Data["종목코드_업종코드"],
-                            Tax = Convert.ToInt32(e.Data["당일매매세금"]),
-                            TradingFee = Convert.ToInt32(e.Data["당일매매수수료"]),
-                            UnitContractAmount = Convert.ToInt32(e.Data["단위체결량"]),
-                            UnitContractPrice = Convert.ToDecimal(e.Data["단위체결가"])
+                            AccNo = e.Data["계좌번호"]
                         };
                         break;
 
-                    case OrderState.체결 when Convert.ToInt32(e.Data["미체결수량"]) is int untradedQuantity && untradedQuantity != 0:
+                    case OrderState.체결 when Convert.ToInt32(e.Data["미체결수량"]) is int untradedQty && untradedQty > 0:
 
                         if (conclusion.TryGetValue(e.Data["주문번호"], out var c))
                         {
-                            c.Tax = Convert.ToInt32(e.Data["당일매매세금"]);
-                            c.TradingFee = Convert.ToInt32(e.Data["당일매매수수료"]);
                             c.UnitContractAmount = Convert.ToInt32(e.Data["단위체결량"]);
-                            c.UnitContractPrice = Convert.ToDecimal(e.Data["단위체결가"]);
-                            c.UntradedQuantity = untradedQuantity;
+                            c.UnitContractPrice = Convert.ToDouble(e.Data["단위체결가"]);
+                            c.UntradedQuantity = untradedQty;
                         }
                         break;
 
-                    case OrderState.체결 or OrderState.취소:
-                        _ = conclusion.TryRemove(e.Data["주문번호"], out var _);
+                    case OrderState.체결 or OrderState.취소 when conclusion.TryRemove(e.Data["주문번호"], out var _):
+
                         break;
 
                     case OrderState.확인:
@@ -66,6 +62,7 @@ partial class AnTalk
                         });
                         break;
                 }
+                CheckOneSAccount(e.Data["주문업무분류"], e.Data["계좌번호"]);
                 break;
 
             case ChejanType.잔고 or ChejanType.파생잔고:
@@ -86,11 +83,29 @@ partial class AnTalk
                         QuantityAvailableForOrder = Convert.ToInt32(e.Data["주문가능수량"]),
                         OrderStatus = (OrderStatus)Convert.ToInt32(e.Data["매도_매수구분"]),
                         TransactionQuantity = Convert.ToInt32(e.Data["당일순매수량"]),
-                        TradingProfit = Convert.ToInt64(e.Data["당일총매도손익"])
+                        TradingProfit = Convert.ToInt64(e.Data["당일총매도손익"]),
+                        AccNo = e.Data["계좌번호"]
                     };
                 }
                 break;
         }
         await saveChanges;
+    }
+    void CheckOneSAccount(string orderState, string accNo)
+    {
+        axAPI.CommRqData(orderState switch
+        {
+            "JJ" => new OpenAPI.Entity.Opw00005
+            {
+                Value = [accNo, string.Empty, "00"],
+                PrevNext = 0
+            },
+            "FJ" => new OpenAPI.Entity.OPW20010
+            {
+                Value = [accNo, string.Empty, "00"],
+                PrevNext = 0
+            },
+            _ => null
+        });
     }
 }
