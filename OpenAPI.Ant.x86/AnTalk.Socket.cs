@@ -69,6 +69,7 @@ partial class AnTalk
             await Socket.Hub.StartAsync();
         }
     }
+
     void SendOrderFO(OpenAPI.OrderFO orderFO)
     {
         double price = Convert.ToDouble(orderFO.Price), margin, commission;
@@ -102,6 +103,7 @@ partial class AnTalk
             axAPI.SendOrderFO(orderFO);
         }
     }
+
     void CheckOneSAccount(string accNo)
     {
         if ("31".Equals(accNo[^2..]))
@@ -115,6 +117,7 @@ partial class AnTalk
             axAPI.CommRqData(new Opw00005 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
         }
     }
+
     void LookupDailyChart(string code, int subtract = 0)
     {
         var baseDate = DateTime.Now.AddDays(subtract).ToString("yyyyMMdd");
@@ -130,6 +133,7 @@ partial class AnTalk
                 break;
         }
     }
+
     /// <summary>
     /// 수정주가구분 1:유상증자, 2:무상증자, 4:배당락, 8:액면분할, 16:액면병합, 32:기업합병, 64:감자, 256:권리락
     /// </summary>
@@ -148,14 +152,17 @@ partial class AnTalk
                 break;
         }
     }
+
     void LookupStockQuote(string code)
     {
         axAPI.CommRqData(new Opt10004 { Value = [code], PrevNext = 0 });
     }
+
     bool IsAdministrator
     {
         get; set;
     }
+
     readonly ConcurrentDictionary<string, OpenAPI.Account> account = new();
     readonly ConcurrentDictionary<string, OpenAPI.Balance> balance = new();
     readonly ConcurrentDictionary<string, OpenAPI.Conclusion> conclusion = new();
