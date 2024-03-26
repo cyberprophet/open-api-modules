@@ -45,6 +45,8 @@ partial class AnTalk
                 foreach (var fs in await FinancialSummary.ExecuteAsync(code))
                 {
                     fs.Code = code;
+                    fs.Date = fs.ReceiveDate?[..7].Replace('.', '-');
+                    fs.Estimated = fs.ReceiveDate?[^2] == 'E';
 
                     _ = await Talk.ExecutePostAsync(fs);
                 }
