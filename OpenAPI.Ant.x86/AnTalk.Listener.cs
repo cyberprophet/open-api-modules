@@ -2,10 +2,10 @@
 
 using Newtonsoft.Json;
 
-using ShareInvest.Entities.Assets;
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
+using ShareInvest.Utilities;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -42,6 +42,14 @@ partial class AnTalk
                         LookupStockQuote(code);
                         break;
                 }
+                foreach (var fs in await FinancialSummary.ExecuteAsync(code))
+                {
+                    fs.Code = code;
+                    fs.Date = fs.ReceiveDate?[..7].Replace('.', '-');
+                    fs.Estimated = fs.ReceiveDate?[^2] == 'E';
+
+                    _ = await Talk.ExecutePostAsync(fs);
+                }
                 break;
 
             case HttpStatusCode.NotFound:
@@ -64,6 +72,7 @@ partial class AnTalk
         }
         return 0x259;
     }
+
     async Task OccursDependingOnConnection(Exception? exception)
     {
         if (Talk != null && exception != null)
@@ -80,6 +89,7 @@ partial class AnTalk
         }
         notifyIcon.Text = $"{DateTime.Now:g}\n[{Socket?.Hub.State}] {exception?.Message ?? string.Empty}";
     }
+
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
         if (Socket != null)
@@ -94,6 +104,7 @@ partial class AnTalk
         }
         notifyIcon.Text = convertMsg(e.Message);
     }
+
     async Task OnReceiveMessage(SecuritiesEventArgs e)
     {
         e.Securities.SerialKey = serialKey;
@@ -137,6 +148,7 @@ partial class AnTalk
         }
         _ = await Talk!.ExecutePostAsync(e.Securities);
     }
+
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
         _ = BeginInvoke(async () =>
@@ -164,6 +176,7 @@ partial class AnTalk
             });
         });
     }
+
     readonly Func<int> worksWithMarketOperation = () =>
     {
         var now = DateTime.Now;
@@ -176,17 +189,20 @@ partial class AnTalk
         };
         return 0xC9;
     };
+
     readonly Func<OpenMessage, string> convertMsg = arg =>
     {
         var msg = $"{DateTime.Now:G}\n[{arg.Code}] {arg.Title}({arg.Screen})";
 
         return msg.Length < 0x40 ? msg : $"[{arg.Code}] {arg.Title}({arg.Screen})";
     };
+
     readonly string[] critCodes =
     [
         "0100",
         "0106"
     ];
+
 #if DEBUG
     readonly string[] realTypes =
     [
@@ -198,6 +214,7 @@ partial class AnTalk
         "주식예상체결"
     ];
 #endif
+
     readonly CoreWebView webView = new();
     readonly ConcurrentQueue<MultiOpt10081> opt10081Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
