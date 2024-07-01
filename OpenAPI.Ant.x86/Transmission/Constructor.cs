@@ -16,6 +16,7 @@ class Constructor
         }
         return response;
     }
+
     protected internal IEnumerable<Dictionary<string, string>> OnReceiveTrMultiData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
         Dictionary<string, string> response;
@@ -34,22 +35,27 @@ class Constructor
             }
         }
     }
+
     internal string[]? Multiple
     {
         get; set;
     }
+
     internal string[]? Single
     {
         get; set;
     }
+
     internal string[]? Value
     {
         get; set;
     }
+
     internal string[]? Id
     {
         get; set;
     }
+
     internal virtual IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent trData)
     {
         if (Single?.Length > 0)

@@ -14,12 +14,31 @@ namespace ShareInvest;
 
 partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 {
+    public event EventHandler<MsgEventArgs>? Send;
+
     internal AxKH()
     {
         Delay.Instance.Milliseconds = 0x259;
 
         InitializeComponent();
     }
+
+    internal bool IsFutures(string code)
+    {
+        return Array.Exists(axAPI.GetFutureList().Split(';'), code.Equals);
+    }
+
+    internal bool CommConnect()
+    {
+        axAPI.OnReceiveMsg += OnReceiveMsg;
+        axAPI.OnReceiveRealData += OnReceiveRealData;
+        axAPI.OnReceiveChejanData += OnReceiveChejanData;
+        axAPI.OnReceiveTrData += OnReceiveTrData;
+        axAPI.OnEventConnect += OnEventConnect;
+
+        return axAPI.CommConnect() == 0;
+    }
+
     internal void CommRqData(TR? tr)
     {
         if (tr?.Value == null)
@@ -38,16 +57,19 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }));
         Cache.SaveTemporarily(sScrNo, tr);
     }
-    internal bool CommConnect()
-    {
-        axAPI.OnReceiveMsg += OnReceiveMsg;
-        axAPI.OnReceiveRealData += OnReceiveRealData;
-        axAPI.OnReceiveChejanData += OnReceiveChejanData;
-        axAPI.OnReceiveTrData += OnReceiveTrData;
-        axAPI.OnEventConnect += OnEventConnect;
 
-        return axAPI.CommConnect() == 0;
+    internal void CommRqData()
+    {
+        if (futuresInventory.TryDequeue(out string? code) && !string.IsNullOrEmpty(code))
+        {
+            CommRqData(new OpenAPI.Entity.Opt50001
+            {
+                Value = [code],
+                PrevNext = 0
+            });
+        }
     }
+
     internal void SendOrder(OpenAPI.Order o)
     {
         Delay.Instance.RequestTheMission(new Task(() =>
@@ -58,6 +80,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }));
         Delay.Instance.Milliseconds = 0xC7;
     }
+
     internal void SendOrderFO(OpenAPI.OrderFO o)
     {
         Delay.Instance.RequestTheMission(new Task(() =>
@@ -68,10 +91,12 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }));
         Delay.Instance.Milliseconds = 0xC7;
     }
+
     internal bool ConnectState
     {
         get => axAPI.GetConnectState() == 1;
     }
+
     void OnEventConnect(object sender, _DKHOpenAPIEvents_OnEventConnectEvent e)
     {
         if (e.nErrCode != 0)
@@ -80,6 +105,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 
             return;
         }
+
         if (ServerType)
         {
             GetUserInfo();
@@ -93,6 +119,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
         Send?.Invoke(this, new ErrMsgEventArgs(sender.GetType().Name));
     }
+
     void OnReceiveTrData(object _, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
         if ("KOA".Equals(e.sTrCode[..3]))
@@ -130,6 +157,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 }
                 Send?.Invoke(this, new JsonMsgEventArgs(tr, json));
             }
+
             Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
             {
                 Title = e.sTrCode,
@@ -140,6 +168,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
         Debug.WriteLine(nameof(OnReceiveTrData));
     }
+
     void OnReceiveChejanData(object _, _DKHOpenAPIEvents_OnReceiveChejanDataEvent e)
     {
         if (e.sGubun.Length != 1 && Enum.IsDefined(typeof(ChejanType), (int)e.sGubun[0]) is false)
@@ -179,10 +208,12 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
         Send?.Invoke(this, new ChejanEventArgs((ChejanType)chejanType, receiver));
     }
+
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {
         Send?.Invoke(this, new RealMsgEventArgs(e.sRealType, e.sRealKey, e.sRealData));
     }
+
     void OnReceiveMsg(object _, _DKHOpenAPIEvents_OnReceiveMsgEvent e)
     {
         Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
@@ -192,6 +223,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             Screen = e.sScrNo
         }));
     }
+
     void OnReceiveErrMessage(string? sRQName, int errCode)
     {
         if (errCode >= 0)
@@ -205,6 +237,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             Screen = Math.Abs(errCode).ToString("D4")
         }));
     }
+
     void GetUserInfo()
     {
         var id = axAPI.GetLoginInfo("USER_ID");
@@ -220,6 +253,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             }));
         }
     }
+
     /// <summary>
     /// 0.KOSPI
     /// 10.KOSDAQ
@@ -246,26 +280,40 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
         RequestForFuturesInfomation(axAPI.GetFutureList().Split(';'));
     }
+
     /// <summary>
     /// 1(A)01.KOSPI200
     /// 1(A)06.KOSDAQ150
     /// </summary>
     void RequestForFuturesInfomation(string[] futures)
     {
-        var futuresInventory = new List<string>(new[]
+        futuresInventory.Enqueue(futures[0]);
+        futuresInventory.Enqueue(futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))]);
+
+        DateTime now = DateTime.Now, expirationDate = Service.GetSecondThursday(now.Year, now.Month);
+
+        var atm = axAPI.GetOptionATM();
+
+        var price = atm.Insert(atm.Length - 2, ".");
+        var month = (expirationDate.Day.CompareTo(now.Day) < 0 ? now.AddMonths(1) : now).ToString("yyyyMM");
+
+        var callOptionCode = axAPI.GetOptionCode(price, 2, month);
+        var putOptionCode = axAPI.GetOptionCode(price, 3, month);
+
+        futuresInventory.Enqueue(callOptionCode);
+        futuresInventory.Enqueue(putOptionCode);
+
+        for (int i = 1; i < price.Length * 2; i++)
         {
-            futures[0],
-            futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))]
-        });
-        foreach (var code in futuresInventory)
-        {
-            CommRqData(new OpenAPI.Entity.Opt50001
-            {
-                Value = [code],
-                PrevNext = 0
-            });
+            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(callOptionCode, 2, i));
+            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(putOptionCode, 3, i));
+            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(callOptionCode, 2, -1 * i));
+            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(putOptionCode, 3, -1 * i));
         }
+
+        CommRqData();
     }
+
     bool ServerType
     {
         get
@@ -275,5 +323,6 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             return string.IsNullOrEmpty(serverType) || int.TryParse(serverType, out int mock) && mock != 1;
         }
     }
-    public event EventHandler<MsgEventArgs>? Send;
+
+    readonly Queue<string> futuresInventory = new();
 }

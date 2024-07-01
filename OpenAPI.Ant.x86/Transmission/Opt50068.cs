@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace ShareInvest.Transmission;
 
-class Opt50030 : Constructor
+class Opt50068 : Constructor
 {
     internal override IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
@@ -29,6 +29,11 @@ class Opt50030 : Constructor
                     for (y = 0; y <= ly; y++)
                     {
                         response[Multiple[y]] = ((string)((object[,])data)[x, y]).Trim();
+                    }
+
+                    if (response.TryGetValue("일자", out string? date) && !string.IsNullOrEmpty(date))
+                    {
+                        response["일자"] = date[..8];
                     }
 
                     yield return JsonConvert.SerializeObject(response);

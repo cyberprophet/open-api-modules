@@ -76,6 +76,10 @@ partial class AnTalk
                 opt50030Collection.Enqueue(futureDayChart);
                 return;
 
+            case Entities.Kiwoom.Opt50068 optionDayChart:
+                opt50068Collection.Enqueue(optionDayChart);
+                return;
+
             case Entities.Kiwoom.OPTKWFID o when IsAdministrator is false:
 
                 if (TrConstructor.EventOccursInStock(o.Current) is false)
@@ -90,7 +94,7 @@ partial class AnTalk
                 break;
 
             case Entities.Kiwoom.Opt50001 or null:
-
+                axAPI.CommRqData();
                 return;
         }
         _ = await Talk!.ExecutePostAsync(e.Convey);
