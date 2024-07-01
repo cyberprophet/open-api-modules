@@ -14,12 +14,15 @@ namespace ShareInvest;
 
 partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 {
+    public event EventHandler<MsgEventArgs>? Send;
+
     internal AxKH()
     {
         Delay.Instance.Milliseconds = 0x259;
 
         InitializeComponent();
     }
+
     internal void CommRqData(TR? tr)
     {
         if (tr?.Value == null)
@@ -38,6 +41,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }));
         Cache.SaveTemporarily(sScrNo, tr);
     }
+
     internal bool CommConnect()
     {
         axAPI.OnReceiveMsg += OnReceiveMsg;
@@ -48,6 +52,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 
         return axAPI.CommConnect() == 0;
     }
+
     internal void SendOrder(OpenAPI.Order o)
     {
         Delay.Instance.RequestTheMission(new Task(() =>
@@ -58,6 +63,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }));
         Delay.Instance.Milliseconds = 0xC7;
     }
+
     internal void SendOrderFO(OpenAPI.OrderFO o)
     {
         Delay.Instance.RequestTheMission(new Task(() =>
@@ -68,10 +74,12 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }));
         Delay.Instance.Milliseconds = 0xC7;
     }
+
     internal bool ConnectState
     {
         get => axAPI.GetConnectState() == 1;
     }
+
     void OnEventConnect(object sender, _DKHOpenAPIEvents_OnEventConnectEvent e)
     {
         if (e.nErrCode != 0)
@@ -93,6 +101,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
         Send?.Invoke(this, new ErrMsgEventArgs(sender.GetType().Name));
     }
+
     void OnReceiveTrData(object _, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
         if ("KOA".Equals(e.sTrCode[..3]))
@@ -140,6 +149,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
         Debug.WriteLine(nameof(OnReceiveTrData));
     }
+
     void OnReceiveChejanData(object _, _DKHOpenAPIEvents_OnReceiveChejanDataEvent e)
     {
         if (e.sGubun.Length != 1 && Enum.IsDefined(typeof(ChejanType), (int)e.sGubun[0]) is false)
@@ -179,10 +189,12 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
         Send?.Invoke(this, new ChejanEventArgs((ChejanType)chejanType, receiver));
     }
+
     void OnReceiveRealData(object _, _DKHOpenAPIEvents_OnReceiveRealDataEvent e)
     {
         Send?.Invoke(this, new RealMsgEventArgs(e.sRealType, e.sRealKey, e.sRealData));
     }
+
     void OnReceiveMsg(object _, _DKHOpenAPIEvents_OnReceiveMsgEvent e)
     {
         Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
@@ -192,6 +204,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             Screen = e.sScrNo
         }));
     }
+
     void OnReceiveErrMessage(string? sRQName, int errCode)
     {
         if (errCode >= 0)
@@ -205,6 +218,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             Screen = Math.Abs(errCode).ToString("D4")
         }));
     }
+
     void GetUserInfo()
     {
         var id = axAPI.GetLoginInfo("USER_ID");
@@ -220,6 +234,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             }));
         }
     }
+
     /// <summary>
     /// 0.KOSPI
     /// 10.KOSDAQ
@@ -246,17 +261,18 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
         RequestForFuturesInfomation(axAPI.GetFutureList().Split(';'));
     }
+
     /// <summary>
     /// 1(A)01.KOSPI200
     /// 1(A)06.KOSDAQ150
     /// </summary>
     void RequestForFuturesInfomation(string[] futures)
     {
-        var futuresInventory = new List<string>(new[]
-        {
+        var futuresInventory = new List<string>(
+        [
             futures[0],
             futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))]
-        });
+        ]);
         foreach (var code in futuresInventory)
         {
             CommRqData(new OpenAPI.Entity.Opt50001
@@ -266,6 +282,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             });
         }
     }
+
     bool ServerType
     {
         get
@@ -275,5 +292,4 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             return string.IsNullOrEmpty(serverType) || int.TryParse(serverType, out int mock) && mock != 1;
         }
     }
-    public event EventHandler<MsgEventArgs>? Send;
 }
