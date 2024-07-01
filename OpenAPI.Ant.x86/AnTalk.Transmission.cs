@@ -43,6 +43,24 @@ partial class AnTalk
                 }
                 break;
 
+            case Opt50068 when Talk != null:
+
+                while (opt50068Collection.TryDequeue(out var collection))
+                {
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, collection);
+
+                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+
+                    if (HttpStatusCode.OK == response.StatusCode && positive && saveChanges > 0)
+                    {
+                        continue;
+                    }
+                    opt50068Collection.Clear();
+
+                    e.Transmission.PrevNext = opt50068Collection.Count;
+                }
+                break;
+
             case Opt50030 when Talk != null:
 
                 while (opt50030Collection.TryDequeue(out var collection))
@@ -79,17 +97,19 @@ partial class AnTalk
                 }
                 break;
         }
+
         if (e.Transmission.PrevNext == 2)
         {
             axAPI.CommRqData(e.Transmission);
 
             return;
         }
+
         switch (e.Transmission)
         {
             case Opt10080:
-            case Opt50029:
-            case Opt50030:
+            case Opt50029 or Opt50030:
+            case Opt50068:
 
                 break;
 

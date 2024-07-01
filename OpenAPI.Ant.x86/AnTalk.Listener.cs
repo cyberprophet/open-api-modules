@@ -30,6 +30,7 @@ partial class AnTalk
                 {
                     case nameof(Transmission.Opt10081):
                     case nameof(Transmission.Opt50030):
+                    case nameof(Transmission.Opt50068):
                         LookupDailyChart(code);
                         break;
 
@@ -42,13 +43,17 @@ partial class AnTalk
                         LookupStockQuote(code);
                         break;
                 }
-                foreach (var fs in await FinancialSummary.ExecuteAsync(code))
-                {
-                    fs.Code = code;
-                    fs.Date = fs.ReceiveDate?[..7].Replace('.', '-');
-                    fs.Estimated = fs.ReceiveDate?[^2] == 'E';
 
-                    _ = await Talk.ExecutePostAsync(fs);
+                if (code.Length == 6)
+                {
+                    foreach (var fs in await FinancialSummary.ExecuteAsync(code))
+                    {
+                        fs.Code = code;
+                        fs.Date = fs.ReceiveDate?[..7].Replace('.', '-');
+                        fs.Estimated = fs.ReceiveDate?[^2] == 'E';
+
+                        _ = await Talk.ExecutePostAsync(fs);
+                    }
                 }
                 break;
 
@@ -63,10 +68,13 @@ partial class AnTalk
                         return await RequestTransmissionAsync(nameof(Transmission.Opt50030));
 
                     case nameof(Transmission.Opt50030):
-                        return await RequestTransmissionAsync(nameof(Transmission.Opt50029));
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50068));
 
                     case nameof(Transmission.Opt50029):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10080));
+
+                    case nameof(Transmission.Opt50068):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50029));
                 }
                 break;
         }
@@ -119,12 +127,14 @@ partial class AnTalk
 
                 _ => now.Hour < 7 || now.Hour >= 15 && now.Minute > 30 || now.Hour > 15
             };
+
             if (string.IsNullOrEmpty(e.Securities.MacAddress) is false && Request.IsUsingHoursUnit)
             {
                 await RequestTransmissionAsync(nameof(Opt10081));
             }
             return;
         }
+
         switch (e.Securities.AccNo[^2..].CompareTo("31"))
         {
             case < 0:
@@ -220,4 +230,5 @@ partial class AnTalk
     readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50029> opt50029Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50030> opt50030Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt50068> opt50068Collection = new();
 }

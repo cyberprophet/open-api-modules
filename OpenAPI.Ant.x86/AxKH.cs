@@ -23,6 +23,22 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         InitializeComponent();
     }
 
+    internal bool IsFutures(string code)
+    {
+        return Array.Exists(axAPI.GetFutureList().Split(';'), code.Equals);
+    }
+
+    internal bool CommConnect()
+    {
+        axAPI.OnReceiveMsg += OnReceiveMsg;
+        axAPI.OnReceiveRealData += OnReceiveRealData;
+        axAPI.OnReceiveChejanData += OnReceiveChejanData;
+        axAPI.OnReceiveTrData += OnReceiveTrData;
+        axAPI.OnEventConnect += OnEventConnect;
+
+        return axAPI.CommConnect() == 0;
+    }
+
     internal void CommRqData(TR? tr)
     {
         if (tr?.Value == null)
@@ -42,15 +58,16 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         Cache.SaveTemporarily(sScrNo, tr);
     }
 
-    internal bool CommConnect()
+    internal void CommRqData()
     {
-        axAPI.OnReceiveMsg += OnReceiveMsg;
-        axAPI.OnReceiveRealData += OnReceiveRealData;
-        axAPI.OnReceiveChejanData += OnReceiveChejanData;
-        axAPI.OnReceiveTrData += OnReceiveTrData;
-        axAPI.OnEventConnect += OnEventConnect;
-
-        return axAPI.CommConnect() == 0;
+        if (futuresInventory.TryDequeue(out string? code) && !string.IsNullOrEmpty(code))
+        {
+            CommRqData(new OpenAPI.Entity.Opt50001
+            {
+                Value = [code],
+                PrevNext = 0
+            });
+        }
     }
 
     internal void SendOrder(OpenAPI.Order o)
@@ -88,6 +105,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
 
             return;
         }
+
         if (ServerType)
         {
             GetUserInfo();
@@ -139,6 +157,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 }
                 Send?.Invoke(this, new JsonMsgEventArgs(tr, json));
             }
+
             Send?.Invoke(this, new AxMsgEventArgs(new OpenMessage
             {
                 Title = e.sTrCode,
@@ -268,19 +287,31 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
     /// </summary>
     void RequestForFuturesInfomation(string[] futures)
     {
-        var futuresInventory = new List<string>(
-        [
-            futures[0],
-            futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))]
-        ]);
-        foreach (var code in futuresInventory)
+        futuresInventory.Enqueue(futures[0]);
+        futuresInventory.Enqueue(futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))]);
+
+        DateTime now = DateTime.Now, expirationDate = Service.GetSecondThursday(now.Year, now.Month);
+
+        var atm = axAPI.GetOptionATM();
+
+        var price = atm.Insert(atm.Length - 2, ".");
+        var month = (expirationDate.Day.CompareTo(now.Day) < 0 ? now.AddMonths(1) : now).ToString("yyyyMM");
+
+        var callOptionCode = axAPI.GetOptionCode(price, 2, month);
+        var putOptionCode = axAPI.GetOptionCode(price, 3, month);
+
+        futuresInventory.Enqueue(callOptionCode);
+        futuresInventory.Enqueue(putOptionCode);
+
+        for (int i = 1; i < price.Length * 2; i++)
         {
-            CommRqData(new OpenAPI.Entity.Opt50001
-            {
-                Value = [code],
-                PrevNext = 0
-            });
+            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(callOptionCode, 2, i));
+            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(putOptionCode, 3, i));
+            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(callOptionCode, 2, -1 * i));
+            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(putOptionCode, 3, -1 * i));
         }
+
+        CommRqData();
     }
 
     bool ServerType
@@ -292,4 +323,6 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             return string.IsNullOrEmpty(serverType) || int.TryParse(serverType, out int mock) && mock != 1;
         }
     }
+
+    readonly Queue<string> futuresInventory = new();
 }

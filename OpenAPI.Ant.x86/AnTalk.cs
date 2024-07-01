@@ -59,10 +59,12 @@ partial class AnTalk : Form
             notifyIcon.Icon = icons[now.Second % 2];
             return;
         }
+
         if (axAPI.ConnectState)
         {
             return;
         }
+
         _ = BeginInvoke(async () =>
         {
             if (IsExecuteTheScheduledTask(now) && axAPI.CommConnect())

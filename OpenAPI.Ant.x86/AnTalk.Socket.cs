@@ -120,7 +120,8 @@ partial class AnTalk
 
     void LookupDailyChart(string code, int subtract = 0)
     {
-        var baseDate = DateTime.Now.AddDays(subtract).ToString("yyyyMMdd");
+        var now = DateTime.Now;
+        var baseDate = now.AddDays(subtract).ToString("yyyyMMdd");
 
         switch (code.Length)
         {
@@ -129,7 +130,19 @@ partial class AnTalk
                 break;
 
             case 8:
-                axAPI.CommRqData(new Opt50030 { Value = [code, baseDate], PrevNext = 0 });
+                TR tr;
+
+                if (axAPI.IsFutures(code))
+                {
+                    tr = new Opt50030 { Value = [code, baseDate], PrevNext = 0 };
+                }
+                else
+                {
+                    var expirationDate = Service.GetSecondThursday(now.Year, now.Month);
+
+                    tr = new Opt50068 { Value = [code, (expirationDate.Day.CompareTo(now.Day) < 0 ? now.AddMonths(1) : now).ToString("yyyyMM")], PrevNext = 0 };
+                }
+                axAPI.CommRqData(tr);
                 break;
         }
     }
