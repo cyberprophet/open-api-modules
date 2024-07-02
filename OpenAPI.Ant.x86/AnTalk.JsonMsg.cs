@@ -76,6 +76,10 @@ partial class AnTalk
                 opt50030Collection.Enqueue(futureDayChart);
                 return;
 
+            case Entities.Kiwoom.Opt50067 optionMinChart:
+                opt50067Collection.Enqueue(optionMinChart);
+                return;
+
             case Entities.Kiwoom.Opt50068 optionDayChart:
                 opt50068Collection.Enqueue(optionDayChart);
                 return;

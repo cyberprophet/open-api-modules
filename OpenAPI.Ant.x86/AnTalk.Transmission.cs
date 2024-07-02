@@ -27,6 +27,22 @@ partial class AnTalk
                 }
                 break;
 
+            case Opt50067 when Talk != null:
+
+                if (opt50067Collection.IsEmpty is false)
+                {
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, opt50067Collection);
+
+                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+
+                    if (HttpStatusCode.OK != response.StatusCode || positive && saveChanges != opt50067Collection.Count)
+                    {
+                        e.Transmission.PrevNext = 0;
+                    }
+                    opt50067Collection.Clear();
+                }
+                break;
+
             case Opt10080 when Talk != null:
 
                 if (opt10080Collection.IsEmpty is false)
@@ -109,7 +125,7 @@ partial class AnTalk
         {
             case Opt10080:
             case Opt50029 or Opt50030:
-            case Opt50068:
+            case Opt50067 or Opt50068:
 
                 break;
 
