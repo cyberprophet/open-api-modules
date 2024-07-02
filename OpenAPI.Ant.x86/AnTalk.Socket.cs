@@ -161,7 +161,17 @@ partial class AnTalk
                 break;
 
             case 8:
-                axAPI.CommRqData(new Opt50029 { Value = [code, tick.ToString()], PrevNext = 0 });
+                TR tr;
+
+                if (axAPI.IsFutures(code))
+                {
+                    tr = new Opt50029 { Value = [code, tick.ToString()], PrevNext = 0 };
+                }
+                else
+                {
+                    tr = new Opt50067 { Value = [code, tick.ToString()], PrevNext = 0 };
+                }
+                axAPI.CommRqData(tr);
                 break;
         }
     }

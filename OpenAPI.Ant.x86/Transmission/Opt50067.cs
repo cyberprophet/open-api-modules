@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace ShareInvest.Transmission;
 
-class Opt50029 : Constructor
+class Opt50067 : Constructor
 {
     internal override IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {

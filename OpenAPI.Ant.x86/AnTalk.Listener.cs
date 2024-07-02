@@ -36,6 +36,7 @@ partial class AnTalk
 
                     case nameof(Transmission.Opt10080):
                     case nameof(Transmission.Opt50029):
+                    case nameof(Transmission.Opt50067):
                         LookupMinuteChart(code);
                         break;
 
@@ -71,6 +72,9 @@ partial class AnTalk
                         return await RequestTransmissionAsync(nameof(Transmission.Opt50068));
 
                     case nameof(Transmission.Opt50029):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50067));
+
+                    case nameof(Transmission.Opt50067):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10080));
 
                     case nameof(Transmission.Opt50068):
@@ -230,5 +234,6 @@ partial class AnTalk
     readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50029> opt50029Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50030> opt50030Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt50067> opt50067Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50068> opt50068Collection = new();
 }
