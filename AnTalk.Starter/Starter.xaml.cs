@@ -20,8 +20,8 @@ public partial class Starter : Window
         {
             Cursor = System.Windows.Forms.Cursors.Hand
         };
-        menu.Items.AddRange(new[]
-        {
+        menu.Items.AddRange(
+        [
             new System.Windows.Forms.ToolStripMenuItem
             {
                 Name = nameof(Properties.Resources.REGISTER),
@@ -37,7 +37,7 @@ public partial class Starter : Window
                 Name = nameof(Properties.Resources.EXIT),
                 Text = Properties.Resources.EXIT
             }
-        });
+        ]);
         icons = [
             Properties.Resources.T1,
             Properties.Resources.T2,
@@ -153,6 +153,7 @@ public partial class Starter : Window
 
         timer.Start();
     }
+
     void OnStateChanged(object sender, EventArgs e)
     {
         if (WindowState.Normal != WindowState)
@@ -160,6 +161,7 @@ public partial class Starter : Window
             Hide();
         }
     }
+
     void OnClosing(object sender, CancelEventArgs e)
     {
         if (IsUserClosing && MessageBoxResult.Cancel == MsgRes)
@@ -170,26 +172,32 @@ public partial class Starter : Window
         }
         GC.Collect();
     }
+
     MessageBoxResult MsgRes
     {
         get => MessageBox.Show(Properties.Resources.WARNING.Replace('|', '\n'), Title, MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel);
     }
+
     Update? Update
     {
         get; set;
     }
+
     bool IsUserClosing
     {
         get; set;
     }
+
     bool IsRegistered
     {
         get => register.GetValue(Properties.Resources.ANT);
     }
+
     bool SearchingTheme
     {
         get; set;
     }
+
     readonly System.Windows.Forms.ContextMenuStrip menu;
     readonly System.Windows.Forms.NotifyIcon notifyIcon;
     readonly System.Drawing.Icon[] icons;

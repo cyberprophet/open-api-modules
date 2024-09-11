@@ -110,6 +110,7 @@ partial class AnTalk
 
             await Socket.Hub.SendAsync(e.Message.GetType().Name, JsonConvert.SerializeObject(e.Message));
         }
+
         if (Array.Exists(critCodes, match => match.Equals(e.Message.Screen)))
         {
             _ = BeginInvoke(Dispose);

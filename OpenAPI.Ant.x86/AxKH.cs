@@ -278,6 +278,7 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
                 }));
             }
         }
+        RequestStockMarketIndex([0, 1, 2, 4, 7]);
         RequestForFuturesInfomation(axAPI.GetFutureList().Split(';'));
     }
 
@@ -312,6 +313,22 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         }
 
         CommRqData();
+    }
+
+    void RequestStockMarketIndex(int[] stockMarketIndex)
+    {
+        foreach (var index in stockMarketIndex)
+        {
+            foreach (var code in axAPI.KOA_Functions("GetUpjongCode", $"{index}").Split('|'))
+            {
+#if DEBUG
+                Debug.WriteLine(code);
+#endif
+            }
+        }
+        CommRqData(new OpenAPI.Entity.Opt20003 { Value = ["101"], PrevNext = 0 });
+        CommRqData(new OpenAPI.Entity.Opt20003 { Value = ["001"], PrevNext = 0 });
+        CommRqData(new OpenAPI.Entity.Opt20001 { Value = ["2", "201"], PrevNext = 0 });
     }
 
     bool ServerType

@@ -4,6 +4,8 @@ using ShareInvest.Entities.Assets;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 
+using System.Diagnostics;
+
 namespace ShareInvest;
 
 partial class AnTalk
@@ -96,6 +98,18 @@ partial class AnTalk
             case Entities.Kiwoom.Opt10004:
                 _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
                 break;
+
+            case Entities.Kiwoom.OPT20001 opt20001:
+#if DEBUG
+                Debug.WriteLine(opt20001.Code);
+#endif
+                return;
+
+            case Entities.Kiwoom.OPT20003 opt20003:
+#if DEBUG
+                Debug.WriteLine(opt20003.Code);
+#endif
+                return;
 
             case Entities.Kiwoom.Opt50001 or null:
                 axAPI.CommRqData();
