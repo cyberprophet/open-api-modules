@@ -39,5 +39,6 @@ class Opt10080 : Constructor
             }
         }
     }
+
     const string time = "체결시간";
 }
