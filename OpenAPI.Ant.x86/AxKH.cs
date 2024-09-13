@@ -166,7 +166,9 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             }));
             return;
         }
+#if DEBUG
         Debug.WriteLine(nameof(OnReceiveTrData));
+#endif
     }
 
     void OnReceiveChejanData(object _, _DKHOpenAPIEvents_OnReceiveChejanDataEvent e)
@@ -315,6 +317,11 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         CommRqData();
     }
 
+    /// <summary>
+    /// 001.KOSPI
+    /// 101.KOSDAQ
+    /// 201.KOSPI200
+    /// </summary>
     void RequestStockMarketIndex(int[] stockMarketIndex)
     {
         foreach (var index in stockMarketIndex)

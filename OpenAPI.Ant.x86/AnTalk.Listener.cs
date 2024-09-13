@@ -71,14 +71,20 @@ partial class AnTalk
                     case nameof(Transmission.Opt50030):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt50068));
 
+                    case nameof(Transmission.Opt50068):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt20006));
+
+                    case nameof(Transmission.Opt20006):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50029));
+
                     case nameof(Transmission.Opt50029):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt20005));
+
+                    case nameof(Transmission.Opt20005):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt50067));
 
                     case nameof(Transmission.Opt50067):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10080));
-
-                    case nameof(Transmission.Opt50068):
-                        return await RequestTransmissionAsync(nameof(Transmission.Opt50029));
                 }
                 break;
         }
@@ -130,7 +136,7 @@ partial class AnTalk
             {
                 DayOfWeek.Sunday or DayOfWeek.Saturday => true,
 
-                _ => now.Hour < 7 || now.Hour >= 15 && now.Minute > 30 || now.Hour > 15
+                _ => now.Hour < 7 || now.Hour >= 15 && now.Minute >= 30 || now.Hour > 15
             };
 
             if (string.IsNullOrEmpty(e.Securities.MacAddress) is false && Request.IsUsingHoursUnit)
@@ -231,7 +237,9 @@ partial class AnTalk
 #endif
 
     readonly CoreWebView webView = new();
+
     readonly ConcurrentQueue<MultiOpt10081> opt10081Collection = new();
+
     readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50029> opt50029Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50030> opt50030Collection = new();
