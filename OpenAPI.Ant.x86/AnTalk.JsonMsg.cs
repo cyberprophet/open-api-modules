@@ -70,6 +70,14 @@ partial class AnTalk
                 opt10080Collection.Enqueue(minuteChart);
                 return;
 
+            case Entities.Kiwoom.Opt20005 indexMinChart:
+                opt20005Collection.Enqueue(indexMinChart);
+                return;
+
+            case Entities.Kiwoom.Opt20006 indexDayChart:
+                opt20006Collection.Enqueue(indexDayChart);
+                return;
+
             case Entities.Kiwoom.Opt50029 futureMinChart:
                 opt50029Collection.Enqueue(futureMinChart);
                 return;

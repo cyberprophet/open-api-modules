@@ -29,12 +29,14 @@ partial class AnTalk
                 switch (resource)
                 {
                     case nameof(Transmission.Opt10081):
+                    case nameof(Transmission.Opt20006):
                     case nameof(Transmission.Opt50030):
                     case nameof(Transmission.Opt50068):
                         LookupDailyChart(code);
                         break;
 
                     case nameof(Transmission.Opt10080):
+                    case nameof(Transmission.Opt20005):
                     case nameof(Transmission.Opt50029):
                     case nameof(Transmission.Opt50067):
                         LookupMinuteChart(code);
@@ -241,6 +243,8 @@ partial class AnTalk
     readonly ConcurrentQueue<MultiOpt10081> opt10081Collection = new();
 
     readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt20005> opt20005Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt20006> opt20006Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50029> opt50029Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50030> opt50030Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50067> opt50067Collection = new();

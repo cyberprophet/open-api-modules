@@ -313,7 +313,6 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
             futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(callOptionCode, 2, -1 * i));
             futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(putOptionCode, 3, -1 * i));
         }
-
         CommRqData();
     }
 
