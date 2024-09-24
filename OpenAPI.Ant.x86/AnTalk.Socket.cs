@@ -129,6 +129,10 @@ partial class AnTalk
                 axAPI.CommRqData(new Opt10081 { Value = [code, baseDate, "1"], PrevNext = 0 });
                 break;
 
+            case 3:
+                axAPI.CommRqData(new Opt20006 { Value = [code, baseDate], PrevNext = 0 });
+                break;
+
             case 8:
                 TR tr;
 
@@ -158,6 +162,10 @@ partial class AnTalk
         {
             case 6:
                 axAPI.CommRqData(new Opt10080 { Value = [code, tick.ToString(), "1"], PrevNext = 0 });
+                break;
+
+            case 3:
+                axAPI.CommRqData(new Opt20005 { Value = [code, tick.ToString()], PrevNext = 0 });
                 break;
 
             case 8:

@@ -1,6 +1,7 @@
 ﻿using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 
+using System.Diagnostics;
 using System.Net;
 
 namespace ShareInvest;
@@ -59,6 +60,22 @@ partial class AnTalk
                 }
                 break;
 
+            case Opt20005 when Talk != null:
+
+                if (opt20005Collection.IsEmpty is false)
+                {
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, opt20005Collection);
+
+                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+
+                    if (HttpStatusCode.OK != response.StatusCode || positive && saveChanges != opt20005Collection.Count)
+                    {
+                        e.Transmission.PrevNext = 0;
+                    }
+                    opt20005Collection.Clear();
+                }
+                break;
+
             case Opt50068 when Talk != null:
 
                 while (opt50068Collection.TryDequeue(out var collection))
@@ -112,6 +129,24 @@ partial class AnTalk
                     e.Transmission.PrevNext = opt10081Collection.Count;
                 }
                 break;
+
+            case Opt20006 when Talk != null:
+
+                while (opt20006Collection.TryDequeue(out var collection))
+                {
+                    var response = await Talk.ExecutePostAsync(e.Transmission.TrCode, collection);
+
+                    var positive = int.TryParse(response.Content?.Replace("\"", string.Empty), out int saveChanges);
+
+                    if (HttpStatusCode.OK == response.StatusCode && positive && saveChanges > 0)
+                    {
+                        continue;
+                    }
+                    opt20006Collection.Clear();
+
+                    e.Transmission.PrevNext = opt20006Collection.Count;
+                }
+                break;
         }
 
         if (e.Transmission.PrevNext == 2)
@@ -124,9 +159,12 @@ partial class AnTalk
         switch (e.Transmission)
         {
             case Opt10080:
+            case Opt20005 or Opt20006:
             case Opt50029 or Opt50030:
             case Opt50067 or Opt50068:
-
+#if DEBUG
+                Debug.WriteLine(e.Transmission);
+#endif
                 break;
 
             case Opt10081 when DateTime.Now.ToString("yyyyMMdd").Equals(e.Transmission.Value?[1]):

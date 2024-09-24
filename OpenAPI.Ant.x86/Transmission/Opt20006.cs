@@ -11,7 +11,7 @@ class Opt20006 : Constructor
     {
         Dictionary<string, string> response = OnReceiveTrSingleData(axAPI, e);
 
-        if (Multiple != null)
+        if (Multiple != null && Single != null)
         {
             var data = axAPI.GetCommDataEx(e.sTrCode, e.sRQName);
 
@@ -26,9 +26,10 @@ class Opt20006 : Constructor
                     response = new Dictionary<string, string>
                     {
                         { nameof(OpenAPI.Entity.SingleOpt20006.Name), name },
-                        { Multiple[0], code }
+                        { Single[0], code }
                     };
-                    for (y = 1; y <= ly; y++)
+
+                    for (y = 0; y <= ly; y++)
                     {
                         response[Multiple[y]] = ((string)((object[,])data)[x, y]).Trim();
                     }

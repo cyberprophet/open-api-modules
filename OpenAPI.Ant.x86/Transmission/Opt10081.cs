@@ -27,6 +27,7 @@ class Opt10081 : Constructor
                         { nameof(OpenAPI.Entity.SingleOpt10081.Name), name },
                         { Multiple[0], code }
                     };
+
                     for (y = 1; y <= ly; y++)
                     {
                         response[Multiple[y]] = ((string)((object[,])data)[x, y]).Trim();
