@@ -141,7 +141,7 @@ partial class AnTalk
         }
 
         foreach (var bal in from fb in balance
-                            where 0x8 == fb.Key.Length
+                            where 0x8 == fb.Key.Length && (fb.Key[0] == '1' || fb.Key[0] == 'A')
                             select new
                             {
                                 Code = fb.Key,

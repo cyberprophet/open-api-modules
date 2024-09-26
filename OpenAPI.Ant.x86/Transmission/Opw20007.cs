@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace ShareInvest.Transmission;
 
+/// <summary>선옵잔고현황정산가기준요청</summary>
 class Opw20007 : Constructor
 {
     internal override IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
@@ -20,6 +21,7 @@ class Opw20007 : Constructor
         {
             yield break;
         }
+
         foreach (var storage in OnReceiveTrMultiData(axAPI, e))
         {
             if (storage.Count == 0)
