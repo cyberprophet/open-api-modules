@@ -42,6 +42,10 @@ partial class AnTalk
                         LookupMinuteChart(code);
                         break;
 
+                    case nameof(Transmission.Opt10003):
+                        LookupStockConclusion(code);
+                        break;
+
                     case nameof(Transmission.Opt10004):
                         LookupStockQuote(code);
                         break;
@@ -64,6 +68,9 @@ partial class AnTalk
 
                 switch (resource)
                 {
+                    case nameof(Transmission.Opt10080):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt10003));
+
                     case nameof(Transmission.Opt10081):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10004));
 
@@ -242,6 +249,7 @@ partial class AnTalk
 
     readonly ConcurrentQueue<MultiOpt10081> opt10081Collection = new();
 
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt10003> opt10003Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt20005> opt20005Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt20006> opt20006Collection = new();
