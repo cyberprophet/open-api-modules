@@ -29,9 +29,26 @@ class Constructor
             {
                 response[Multiple[j]] = axAPI.GetCommData(e.sTrCode, e.sRQName, i, Multiple[j]).Trim();
             }
+
             if (response.Count > 0)
             {
                 yield return response;
+            }
+        }
+    }
+
+    internal virtual IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent trData)
+    {
+        if (Single?.Length > 0)
+        {
+            yield return JsonConvert.SerializeObject(OnReceiveTrSingleData(axAPI, trData));
+        }
+
+        if (Multiple?.Length > 0)
+        {
+            foreach (var e in OnReceiveTrMultiData(axAPI, trData))
+            {
+                yield return JsonConvert.SerializeObject(e);
             }
         }
     }
@@ -54,20 +71,5 @@ class Constructor
     internal string[]? Id
     {
         get; set;
-    }
-
-    internal virtual IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent trData)
-    {
-        if (Single?.Length > 0)
-        {
-            yield return JsonConvert.SerializeObject(OnReceiveTrSingleData(axAPI, trData));
-        }
-        if (Multiple?.Length > 0)
-        {
-            foreach (var e in OnReceiveTrMultiData(axAPI, trData))
-            {
-                yield return JsonConvert.SerializeObject(e);
-            }
-        }
     }
 }

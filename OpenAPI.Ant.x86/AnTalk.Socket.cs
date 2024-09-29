@@ -184,10 +184,9 @@ partial class AnTalk
         }
     }
 
-    void LookupStockQuote(string code)
-    {
-        axAPI.CommRqData(new Opt10004 { Value = [code], PrevNext = 0 });
-    }
+    void LookupStockQuote(string code) => axAPI.CommRqData(new Opt10004 { Value = [code], PrevNext = 0 });
+
+    void LookupStockConclusion(string code) => axAPI.CommRqData(new Opt10003 { Value = [code], PrevNext = 0 });
 
     bool IsAdministrator
     {

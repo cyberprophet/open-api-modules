@@ -103,6 +103,10 @@ partial class AnTalk
                 await Socket!.Hub.SendAsync(nameof(TrConstructor.EventOccursInStock), o.Code, char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]);
                 return;
 
+            case Entities.Kiwoom.Opt10003 opt13:
+                opt10003Collection.Enqueue(opt13);
+                return;
+
             case Entities.Kiwoom.Opt10004:
                 _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
                 break;
