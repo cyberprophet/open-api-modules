@@ -26,7 +26,8 @@ class Opt10003 : Constructor
             {
                 DayOfWeek.Sunday => now.AddDays(-2),
                 DayOfWeek.Saturday => now.AddDays(-1),
-                _ => now.Hour < 5 ? now.AddDays(-1) : now
+                DayOfWeek.Monday => now.Hour < 5 ? now.AddDays(-3) : now,
+                _ => now
             }).ToString("yyyyMMdd", TrConstructor.Culture);
 
             yield return JsonConvert.SerializeObject(storage);

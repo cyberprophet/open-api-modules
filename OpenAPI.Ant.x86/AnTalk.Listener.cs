@@ -68,7 +68,7 @@ partial class AnTalk
 
                 switch (resource)
                 {
-                    case nameof(Transmission.Opt10080):
+                    case nameof(Transmission.Opt10080) when DateTime.Now.Hour != 7:
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10003));
 
                     case nameof(Transmission.Opt10081):

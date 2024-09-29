@@ -26,6 +26,7 @@ partial class AnTalk
 
                 continue;
             }
+
             using (var sp = new SoundPlayer(Resources.MARIO))
             {
                 Socket = new KiwoomHub(string.Concat(webView.Url, resource), accessToken: webView.AccessToken, serialKey: serialKey);
@@ -34,6 +35,7 @@ partial class AnTalk
             }
             break;
         }
+
         if (HubConnectionState.Disconnected == Socket.Hub.State)
         {
             Socket.Send += (sender, args) =>
