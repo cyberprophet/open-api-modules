@@ -61,26 +61,6 @@ namespace ShareInvest.Properties {
         }
         
         /// <summary>
-        ///   (아이콘)과(와) 유사한 System.Drawing.Icon 형식의 지역화된 리소스를 찾습니다.
-        /// </summary>
-        internal static System.Drawing.Icon DARK {
-            get {
-                object obj = ResourceManager.GetObject("DARK", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   (아이콘)과(와) 유사한 System.Drawing.Icon 형식의 지역화된 리소스를 찾습니다.
-        /// </summary>
-        internal static System.Drawing.Icon DISABLE {
-            get {
-                object obj = ResourceManager.GetObject("DISABLE", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   /hubs/kiwoom과(와) 유사한 지역화된 문자열을 찾습니다.
         /// </summary>
         internal static string KIWOOM {
@@ -88,7 +68,31 @@ namespace ShareInvest.Properties {
                 return ResourceManager.GetString("KIWOOM", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   (아이콘)과(와) 유사한 System.Drawing.Icon 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Icon DARK
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("DARK", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+
+        /// <summary>
+        ///   (아이콘)과(와) 유사한 System.Drawing.Icon 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Icon DISABLE
+        {
+            get
+            {
+                object obj = ResourceManager.GetObject("DISABLE", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+
         /// <summary>
         ///   (아이콘)과(와) 유사한 System.Drawing.Icon 형식의 지역화된 리소스를 찾습니다.
         /// </summary>

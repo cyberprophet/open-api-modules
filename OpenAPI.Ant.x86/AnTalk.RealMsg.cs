@@ -15,6 +15,7 @@ partial class AnTalk
         {
             await Socket.Hub.SendAsync(e.Type, e.Key, e.Data);
         }
+
         if (Enum.TryParse(e.Type, out KiwoomRealType type))
         {
             string[] data;
@@ -101,6 +102,7 @@ partial class AnTalk
                     break;
             }
         }
+
 #if DEBUG
         if (!Array.Exists(realTypes, match => match.Equals(e.Type)))
         {
@@ -114,6 +116,7 @@ partial class AnTalk
         }
 #endif
     }
+
     int LiquidateInPrinciple()
     {
         foreach (var con in from fc in conclusion
@@ -136,8 +139,9 @@ partial class AnTalk
                 RQName = con.Code
             });
         }
+
         foreach (var bal in from fb in balance
-                            where 0x8 == fb.Key.Length
+                            where 0x8 == fb.Key.Length && (fb.Key[0] == '1' || fb.Key[0] == 'A')
                             select new
                             {
                                 Code = fb.Key,

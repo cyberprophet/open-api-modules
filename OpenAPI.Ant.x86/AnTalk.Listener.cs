@@ -2,10 +2,10 @@
 
 using Newtonsoft.Json;
 
-using ShareInvest.Entities.Assets;
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
+using ShareInvest.Utilities;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -29,18 +29,38 @@ partial class AnTalk
                 switch (resource)
                 {
                     case nameof(Transmission.Opt10081):
+                    case nameof(Transmission.Opt20006):
                     case nameof(Transmission.Opt50030):
+                    case nameof(Transmission.Opt50068):
                         LookupDailyChart(code);
                         break;
 
                     case nameof(Transmission.Opt10080):
+                    case nameof(Transmission.Opt20005):
                     case nameof(Transmission.Opt50029):
+                    case nameof(Transmission.Opt50067):
                         LookupMinuteChart(code);
+                        break;
+
+                    case nameof(Transmission.Opt10003):
+                        LookupStockConclusion(code);
                         break;
 
                     case nameof(Transmission.Opt10004):
                         LookupStockQuote(code);
                         break;
+                }
+
+                if (code.Length == 6)
+                {
+                    foreach (var fs in await FinancialSummary.ExecuteAsync(code))
+                    {
+                        fs.Code = code;
+                        fs.Date = fs.ReceiveDate?[..7].Replace('.', '-');
+                        fs.Estimated = fs.ReceiveDate?[^2] == 'E';
+
+                        _ = await Talk.ExecutePostAsync(fs);
+                    }
                 }
                 break;
 
@@ -48,6 +68,9 @@ partial class AnTalk
 
                 switch (resource)
                 {
+                    case nameof(Transmission.Opt10080):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt10003));
+
                     case nameof(Transmission.Opt10081):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10004));
 
@@ -55,15 +78,28 @@ partial class AnTalk
                         return await RequestTransmissionAsync(nameof(Transmission.Opt50030));
 
                     case nameof(Transmission.Opt50030):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50068));
+
+                    case nameof(Transmission.Opt50068):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt20006));
+
+                    case nameof(Transmission.Opt20006):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt50029));
 
                     case nameof(Transmission.Opt50029):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt20005));
+
+                    case nameof(Transmission.Opt20005):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50067));
+
+                    case nameof(Transmission.Opt50067):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10080));
                 }
                 break;
         }
         return 0x259;
     }
+
     async Task OccursDependingOnConnection(Exception? exception)
     {
         if (Talk != null && exception != null)
@@ -80,6 +116,7 @@ partial class AnTalk
         }
         notifyIcon.Text = $"{DateTime.Now:g}\n[{Socket?.Hub.State}] {exception?.Message ?? string.Empty}";
     }
+
     async Task OnReceiveMessage(AxMsgEventArgs e)
     {
         if (Socket != null)
@@ -88,12 +125,14 @@ partial class AnTalk
 
             await Socket.Hub.SendAsync(e.Message.GetType().Name, JsonConvert.SerializeObject(e.Message));
         }
+
         if (Array.Exists(critCodes, match => match.Equals(e.Message.Screen)))
         {
             _ = BeginInvoke(Dispose);
         }
         notifyIcon.Text = convertMsg(e.Message);
     }
+
     async Task OnReceiveMessage(SecuritiesEventArgs e)
     {
         e.Securities.SerialKey = serialKey;
@@ -106,14 +145,16 @@ partial class AnTalk
             {
                 DayOfWeek.Sunday or DayOfWeek.Saturday => true,
 
-                _ => now.Hour < 7 || now.Hour >= 15 && now.Minute > 30 || now.Hour > 15
+                _ => now.Hour < 7 || now.Hour >= 15 && now.Minute >= 30 || now.Hour > 15
             };
+
             if (string.IsNullOrEmpty(e.Securities.MacAddress) is false && Request.IsUsingHoursUnit)
             {
                 await RequestTransmissionAsync(nameof(Opt10081));
             }
             return;
         }
+
         switch (e.Securities.AccNo[^2..].CompareTo("31"))
         {
             case < 0:
@@ -137,6 +178,7 @@ partial class AnTalk
         }
         _ = await Talk!.ExecutePostAsync(e.Securities);
     }
+
     void OnReceiveMessage(object? sender, MsgEventArgs e)
     {
         _ = BeginInvoke(async () =>
@@ -164,6 +206,7 @@ partial class AnTalk
             });
         });
     }
+
     readonly Func<int> worksWithMarketOperation = () =>
     {
         var now = DateTime.Now;
@@ -176,17 +219,20 @@ partial class AnTalk
         };
         return 0xC9;
     };
+
     readonly Func<OpenMessage, string> convertMsg = arg =>
     {
         var msg = $"{DateTime.Now:G}\n[{arg.Code}] {arg.Title}({arg.Screen})";
 
         return msg.Length < 0x40 ? msg : $"[{arg.Code}] {arg.Title}({arg.Screen})";
     };
+
     readonly string[] critCodes =
     [
         "0100",
         "0106"
     ];
+
 #if DEBUG
     readonly string[] realTypes =
     [
@@ -198,9 +244,17 @@ partial class AnTalk
         "주식예상체결"
     ];
 #endif
+
     readonly CoreWebView webView = new();
+
     readonly ConcurrentQueue<MultiOpt10081> opt10081Collection = new();
+
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt10003> opt10003Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt20005> opt20005Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt20006> opt20006Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50029> opt50029Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50030> opt50030Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt50067> opt50067Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.Opt50068> opt50068Collection = new();
 }

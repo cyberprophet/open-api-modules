@@ -15,10 +15,12 @@ partial class AnTalk : Form
         InitializeComponent();
         InitializeComponent(this.axAPI = axAPI);
     }
+
     bool IsExecuteTheScheduledTask(DateTime now)
     {
         return string.IsNullOrEmpty(webView.AccessToken) is false && (now.Hour < 4 || now.Hour > 6) && now.Second == Random.Shared.Next(now.Second);
     }
+
     void InitializeComponent(Control component)
     {
         _ = webView.EnsureCoreWebView2Async();
@@ -35,6 +37,7 @@ partial class AnTalk : Form
 
         timer.Start();
     }
+
     void TimerTick(object _, EventArgs e)
     {
         if (FormBorderStyle.Sizable == FormBorderStyle && FormWindowState.Minimized != WindowState)
@@ -56,10 +59,12 @@ partial class AnTalk : Form
             notifyIcon.Icon = icons[now.Second % 2];
             return;
         }
+
         if (axAPI.ConnectState)
         {
             return;
         }
+
         _ = BeginInvoke(async () =>
         {
             if (IsExecuteTheScheduledTask(now) && axAPI.CommConnect())
@@ -75,6 +80,7 @@ partial class AnTalk : Form
         });
         notifyIcon.Icon = icons[^1];
     }
+
     void StripItemClicked(object _, ToolStripItemClickedEventArgs e)
     {
         if (reference.Name!.Equals(e.ClickedItem?.Name))
@@ -108,6 +114,7 @@ partial class AnTalk : Form
         }
         Close();
     }
+
     void SecuritiesResize(object _, EventArgs e)
     {
         SuspendLayout();
@@ -118,6 +125,7 @@ partial class AnTalk : Form
 
         ResumeLayout();
     }
+
     void JustBeforeFormClosing(object _, FormClosingEventArgs e)
     {
         if (Visible)
@@ -132,18 +140,22 @@ partial class AnTalk : Form
         }
         Dispose();
     }
+
     DialogResult IsCancelled
     {
         get => MessageBox.Show(Resources.WARNING.Replace('|', '\n'), Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
     }
+
     KiwoomHub? Socket
     {
         get; set;
     }
+
     AnTalkClient? Talk
     {
         get; set;
     }
+
     readonly string serialKey;
     readonly Icon[] icons;
     readonly AxKH axAPI;

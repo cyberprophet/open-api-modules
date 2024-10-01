@@ -69,6 +69,7 @@ partial class AnTalk
             await Socket.Hub.StartAsync();
         }
     }
+
     void SendOrderFO(OpenAPI.OrderFO orderFO)
     {
         double price = Convert.ToDouble(orderFO.Price), margin, commission;
@@ -102,6 +103,7 @@ partial class AnTalk
             axAPI.SendOrderFO(orderFO);
         }
     }
+
     void CheckOneSAccount(string accNo)
     {
         if ("31".Equals(accNo[^2..]))
@@ -115,9 +117,11 @@ partial class AnTalk
             axAPI.CommRqData(new Opw00005 { Value = [accNo, string.Empty, "00"], PrevNext = 0 });
         }
     }
+
     void LookupDailyChart(string code, int subtract = 0)
     {
-        var baseDate = DateTime.Now.AddDays(subtract).ToString("yyyyMMdd");
+        var now = DateTime.Now;
+        var baseDate = now.AddDays(subtract).ToString("yyyyMMdd");
 
         switch (code.Length)
         {
@@ -125,11 +129,28 @@ partial class AnTalk
                 axAPI.CommRqData(new Opt10081 { Value = [code, baseDate, "1"], PrevNext = 0 });
                 break;
 
+            case 3:
+                axAPI.CommRqData(new Opt20006 { Value = [code, baseDate], PrevNext = 0 });
+                break;
+
             case 8:
-                axAPI.CommRqData(new Opt50030 { Value = [code, baseDate], PrevNext = 0 });
+                TR tr;
+
+                if (axAPI.IsFutures(code))
+                {
+                    tr = new Opt50030 { Value = [code, baseDate], PrevNext = 0 };
+                }
+                else
+                {
+                    var expirationDate = Service.GetSecondThursday(now.Year, now.Month);
+
+                    tr = new Opt50068 { Value = [code, (expirationDate.Day.CompareTo(now.Day) < 0 ? now.AddMonths(1) : now).ToString("yyyyMM")], PrevNext = 0 };
+                }
+                axAPI.CommRqData(tr);
                 break;
         }
     }
+
     /// <summary>
     /// 수정주가구분 1:유상증자, 2:무상증자, 4:배당락, 8:액면분할, 16:액면병합, 32:기업합병, 64:감자, 256:권리락
     /// </summary>
@@ -143,19 +164,35 @@ partial class AnTalk
                 axAPI.CommRqData(new Opt10080 { Value = [code, tick.ToString(), "1"], PrevNext = 0 });
                 break;
 
+            case 3:
+                axAPI.CommRqData(new Opt20005 { Value = [code, tick.ToString()], PrevNext = 0 });
+                break;
+
             case 8:
-                axAPI.CommRqData(new Opt50029 { Value = [code, tick.ToString()], PrevNext = 0 });
+                TR tr;
+
+                if (axAPI.IsFutures(code))
+                {
+                    tr = new Opt50029 { Value = [code, tick.ToString()], PrevNext = 0 };
+                }
+                else
+                {
+                    tr = new Opt50067 { Value = [code, tick.ToString()], PrevNext = 0 };
+                }
+                axAPI.CommRqData(tr);
                 break;
         }
     }
-    void LookupStockQuote(string code)
-    {
-        axAPI.CommRqData(new Opt10004 { Value = [code], PrevNext = 0 });
-    }
+
+    void LookupStockQuote(string code) => axAPI.CommRqData(new Opt10004 { Value = [code], PrevNext = 0 });
+
+    void LookupStockConclusion(string code) => axAPI.CommRqData(new Opt10003 { Value = [code], PrevNext = 0 });
+
     bool IsAdministrator
     {
         get; set;
     }
+
     readonly ConcurrentDictionary<string, OpenAPI.Account> account = new();
     readonly ConcurrentDictionary<string, OpenAPI.Balance> balance = new();
     readonly ConcurrentDictionary<string, OpenAPI.Conclusion> conclusion = new();

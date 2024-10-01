@@ -4,6 +4,8 @@ using ShareInvest.Entities.Assets;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
 
+using System.Diagnostics;
+
 namespace ShareInvest;
 
 partial class AnTalk
@@ -68,12 +70,28 @@ partial class AnTalk
                 opt10080Collection.Enqueue(minuteChart);
                 return;
 
+            case Entities.Kiwoom.Opt20005 indexMinChart:
+                opt20005Collection.Enqueue(indexMinChart);
+                return;
+
+            case Entities.Kiwoom.Opt20006 indexDayChart:
+                opt20006Collection.Enqueue(indexDayChart);
+                return;
+
             case Entities.Kiwoom.Opt50029 futureMinChart:
                 opt50029Collection.Enqueue(futureMinChart);
                 return;
 
             case Entities.Kiwoom.Opt50030 futureDayChart:
                 opt50030Collection.Enqueue(futureDayChart);
+                return;
+
+            case Entities.Kiwoom.Opt50067 optionMinChart:
+                opt50067Collection.Enqueue(optionMinChart);
+                return;
+
+            case Entities.Kiwoom.Opt50068 optionDayChart:
+                opt50068Collection.Enqueue(optionDayChart);
                 return;
 
             case Entities.Kiwoom.OPTKWFID o when IsAdministrator is false:
@@ -85,12 +103,28 @@ partial class AnTalk
                 await Socket!.Hub.SendAsync(nameof(TrConstructor.EventOccursInStock), o.Code, char.IsDigit(o.Current![0]) ? o.Current : o.Current[1..]);
                 return;
 
+            case Entities.Kiwoom.Opt10003 opt13:
+                opt10003Collection.Enqueue(opt13);
+                return;
+
             case Entities.Kiwoom.Opt10004:
                 _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
                 break;
 
-            case Entities.Kiwoom.Opt50001 or null:
+            case Entities.Kiwoom.OPT20001 opt20001:
+#if DEBUG
+                Debug.WriteLine(opt20001.Code);
+#endif
+                return;
 
+            case Entities.Kiwoom.OPT20003 opt20003:
+#if DEBUG
+                Debug.WriteLine(opt20003.Code);
+#endif
+                return;
+
+            case Entities.Kiwoom.Opt50001 or null:
+                axAPI.CommRqData();
                 return;
         }
         _ = await Talk!.ExecutePostAsync(e.Convey);

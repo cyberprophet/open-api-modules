@@ -4,12 +4,10 @@ using Newtonsoft.Json;
 
 namespace ShareInvest.Transmission;
 
-class Opt10081 : Constructor
+class Opt50067 : Constructor
 {
     internal override IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
-        Dictionary<string, string> response = OnReceiveTrSingleData(axAPI, e);
-
         if (Multiple != null)
         {
             var data = axAPI.GetCommDataEx(e.sTrCode, e.sRQName);
@@ -18,22 +16,24 @@ class Opt10081 : Constructor
             {
                 int x, y, lx = ((object[,])data).GetUpperBound(0), ly = ((object[,])data).GetUpperBound(1);
 
-                string code = response.ElementAt(0).Value, name = axAPI.GetMasterCodeName(code);
-
                 for (x = 0; x <= lx; x++)
                 {
-                    response = new Dictionary<string, string>
+                    Dictionary<string, string> response = new()
                     {
-                        { nameof(OpenAPI.Entity.SingleOpt10081.Name), name },
-                        { Multiple[0], code }
+                        {
+                            Id![0],
+                            Value![0]
+                        }
                     };
 
-                    for (y = 1; y <= ly; y++)
+                    for (y = 0; y <= ly; y++)
                     {
                         response[Multiple[y]] = ((string)((object[,])data)[x, y]).Trim();
                     }
+
                     yield return JsonConvert.SerializeObject(response);
                 }
+
                 yield return e.sPrevNext;
             }
         }

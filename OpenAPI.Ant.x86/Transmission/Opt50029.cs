@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace ShareInvest.Transmission;
 
+/// <summary>선물분차트요청</summary>
 class Opt50029 : Constructor
 {
     internal override IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
@@ -25,12 +26,15 @@ class Opt50029 : Constructor
                             Value![0]
                         }
                     };
+
                     for (y = 0; y <= ly; y++)
                     {
                         response[Multiple[y]] = ((string)((object[,])data)[x, y]).Trim();
                     }
+
                     yield return JsonConvert.SerializeObject(response);
                 }
+
                 yield return e.sPrevNext;
             }
         }

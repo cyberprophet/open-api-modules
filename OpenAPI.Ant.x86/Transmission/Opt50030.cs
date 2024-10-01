@@ -25,12 +25,15 @@ class Opt50030 : Constructor
                             Value![0]
                         }
                     };
+
                     for (y = 0; y <= ly; y++)
                     {
                         response[Multiple[y]] = ((string)((object[,])data)[x, y]).Trim();
                     }
+
                     yield return JsonConvert.SerializeObject(response);
                 }
+
                 yield return e.sPrevNext;
             }
         }
