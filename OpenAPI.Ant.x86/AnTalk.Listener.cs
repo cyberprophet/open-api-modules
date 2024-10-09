@@ -43,24 +43,25 @@ partial class AnTalk
                         break;
 
                     case nameof(Transmission.Opt10003):
+
+                        foreach (var fs in await FinancialSummary.ExecuteAsync(code))
+                        {
+                            fs.Code = code;
+                            fs.Date = fs.ReceiveDate?[..7].Replace('.', '-');
+                            fs.Estimated = fs.ReceiveDate?[^2] == 'E';
+
+                            _ = await Talk.ExecutePostAsync(fs);
+                        }
                         LookupStockConclusion(code);
                         break;
 
                     case nameof(Transmission.Opt10004):
                         LookupStockQuote(code);
                         break;
-                }
 
-                if (code.Length == 6)
-                {
-                    foreach (var fs in await FinancialSummary.ExecuteAsync(code))
-                    {
-                        fs.Code = code;
-                        fs.Date = fs.ReceiveDate?[..7].Replace('.', '-');
-                        fs.Estimated = fs.ReceiveDate?[^2] == 'E';
-
-                        _ = await Talk.ExecutePostAsync(fs);
-                    }
+                    case nameof(Transmission.OPT50006):
+                        LookupFOConclusion(code);
+                        break;
                 }
                 break;
 
@@ -68,32 +69,35 @@ partial class AnTalk
 
                 switch (resource)
                 {
+                    case nameof(Transmission.Opt10004):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50030));
+
                     case nameof(Transmission.Opt10080):
-                        return await RequestTransmissionAsync(nameof(Transmission.Opt10003));
+                        return await RequestTransmissionAsync(nameof(Transmission.OPT50006));
 
                     case nameof(Transmission.Opt10081):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10004));
 
-                    case nameof(Transmission.Opt10004):
-                        return await RequestTransmissionAsync(nameof(Transmission.Opt50030));
-
-                    case nameof(Transmission.Opt50030):
-                        return await RequestTransmissionAsync(nameof(Transmission.Opt50068));
-
-                    case nameof(Transmission.Opt50068):
-                        return await RequestTransmissionAsync(nameof(Transmission.Opt20006));
+                    case nameof(Transmission.Opt20005):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50067));
 
                     case nameof(Transmission.Opt20006):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt50029));
 
+                    case nameof(Transmission.OPT50006):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt10003));
+
                     case nameof(Transmission.Opt50029):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt20005));
 
-                    case nameof(Transmission.Opt20005):
-                        return await RequestTransmissionAsync(nameof(Transmission.Opt50067));
+                    case nameof(Transmission.Opt50030):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt50068));
 
                     case nameof(Transmission.Opt50067):
                         return await RequestTransmissionAsync(nameof(Transmission.Opt10080));
+
+                    case nameof(Transmission.Opt50068):
+                        return await RequestTransmissionAsync(nameof(Transmission.Opt20006));
                 }
                 break;
         }
@@ -253,6 +257,7 @@ partial class AnTalk
     readonly ConcurrentQueue<Entities.Kiwoom.Opt10080> opt10080Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt20005> opt20005Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt20006> opt20006Collection = new();
+    readonly ConcurrentQueue<Entities.Kiwoom.OPT50006> opt50006Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50029> opt50029Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50030> opt50030Collection = new();
     readonly ConcurrentQueue<Entities.Kiwoom.Opt50067> opt50067Collection = new();

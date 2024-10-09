@@ -36,6 +36,16 @@ partial class AnTalk
                 opt50067Collection.Clear();
                 break;
 
+            case OPT50006 when Talk != null && opt50006Collection.IsEmpty is false:
+                response = await Talk.ExecutePostAsync(e.Transmission.TrCode, opt50006Collection);
+
+                if (HttpStatusCode.OK != response.StatusCode || StopContinuousInquiry(response.Content, opt50006Collection.Count))
+                {
+                    e.Transmission.PrevNext = 0;
+                }
+                opt50006Collection.Clear();
+                break;
+
             case Opt10003 when Talk != null && opt10003Collection.IsEmpty is false:
                 response = await Talk.ExecutePostAsync(e.Transmission.TrCode, opt10003Collection);
 
@@ -143,6 +153,7 @@ partial class AnTalk
             case Opt10003:
             case Opt10080:
             case Opt20005 or Opt20006:
+            case OPT50006:
             case Opt50029 or Opt50030:
             case Opt50067 or Opt50068:
 #if DEBUG

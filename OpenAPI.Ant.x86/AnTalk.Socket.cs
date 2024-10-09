@@ -26,6 +26,7 @@ partial class AnTalk
 
                 continue;
             }
+
             using (var sp = new SoundPlayer(Resources.MARIO))
             {
                 Socket = new KiwoomHub(string.Concat(webView.Url, resource), accessToken: webView.AccessToken, serialKey: serialKey);
@@ -34,6 +35,7 @@ partial class AnTalk
             }
             break;
         }
+
         if (HubConnectionState.Disconnected == Socket.Hub.State)
         {
             Socket.Send += (sender, args) =>
@@ -187,6 +189,8 @@ partial class AnTalk
     void LookupStockQuote(string code) => axAPI.CommRqData(new Opt10004 { Value = [code], PrevNext = 0 });
 
     void LookupStockConclusion(string code) => axAPI.CommRqData(new Opt10003 { Value = [code], PrevNext = 0 });
+
+    void LookupFOConclusion(string code) => axAPI.CommRqData(new OPT50006 { Value = [code], PrevNext = 0 });
 
     bool IsAdministrator
     {

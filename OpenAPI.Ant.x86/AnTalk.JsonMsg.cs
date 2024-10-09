@@ -107,21 +107,15 @@ partial class AnTalk
                 opt10003Collection.Enqueue(opt13);
                 return;
 
+            case Entities.Kiwoom.OPT50006 opt56:
+                opt50006Collection.Enqueue(opt56);
+                return;
+
             case Entities.Kiwoom.Opt10004:
                 _ = await RequestTransmissionAsync(e.Convey.GetType().Name);
                 break;
 
-            case Entities.Kiwoom.OPT20001 opt20001:
-#if DEBUG
-                Debug.WriteLine(opt20001.Code);
-#endif
-                return;
-
-            case Entities.Kiwoom.OPT20003 opt20003:
-#if DEBUG
-                Debug.WriteLine(opt20003.Code);
-#endif
-                return;
+            case Entities.Kiwoom.OPT20001 or Entities.Kiwoom.OPT20003: return;
 
             case Entities.Kiwoom.Opt50001 or null:
                 axAPI.CommRqData();

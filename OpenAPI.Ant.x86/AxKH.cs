@@ -4,11 +4,13 @@ using ShareInvest.Entities;
 using ShareInvest.Entities.Kiwoom;
 using ShareInvest.Observers;
 using ShareInvest.OpenAPI.Entity;
+using ShareInvest.RealType;
 using ShareInvest.Services;
 using ShareInvest.Transmission;
 
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 
 namespace ShareInvest;
 
@@ -290,8 +292,12 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
     /// </summary>
     void RequestForFuturesInfomation(string[] futures)
     {
-        futuresInventory.Enqueue(futures[0]);
-        futuresInventory.Enqueue(futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))]);
+        string kospi200 = futures[0], kosdaq150 = futures[Array.FindIndex(futures, match => "106".Equals(match[..3]) || "A06".Equals(match[..3]))];
+
+        futuresInventory.Enqueue(kospi200);
+        futuresInventory.Enqueue(kosdaq150);
+
+        _ = axAPI.SetRealReg("5001", $"{kospi200};{kosdaq150}", KiwoomFutures.FidList, "0");
 
         DateTime now = DateTime.Now, expirationDate = Service.GetSecondThursday(now.Year, now.Month);
 
@@ -306,13 +312,23 @@ partial class AxKH : UserControl, IEventHandler<MsgEventArgs>
         futuresInventory.Enqueue(callOptionCode);
         futuresInventory.Enqueue(putOptionCode);
 
-        for (int i = 1; i < price.Length * 2; i++)
+        StringBuilder callOptionCodeStr = new($"{callOptionCode};"), putOptionCodeStr = new($"{putOptionCode};");
+
+        for (int i = 1; i < price.Length * 5; i++)
         {
-            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(callOptionCode, 2, i));
-            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(putOptionCode, 3, i));
-            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(callOptionCode, 2, -1 * i));
-            futuresInventory.Enqueue(axAPI.GetOptionCodeByActPrice(putOptionCode, 3, -1 * i));
+            var upperCallOptionCode = axAPI.GetOptionCodeByActPrice(callOptionCode, 2, i);
+            var upperPutOptionCode = axAPI.GetOptionCodeByActPrice(putOptionCode, 3, i);
+            var lowerCallOptionCode = axAPI.GetOptionCodeByActPrice(callOptionCode, 2, -1 * i);
+            var lowerPutOptionCode = axAPI.GetOptionCodeByActPrice(putOptionCode, 3, -1 * i);
+
+            callOptionCodeStr.Append(upperCallOptionCode).Append(';');
+            putOptionCodeStr.Append(upperPutOptionCode).Append(';');
+            callOptionCodeStr.Append(lowerCallOptionCode).Append(';');
+            putOptionCodeStr.Append(lowerPutOptionCode).Append(';');
         }
+        _ = axAPI.SetRealReg("5002", $"{callOptionCodeStr.Remove(callOptionCodeStr.Length - 1, 1)}", KiwoomOption.FidList, "0");
+        _ = axAPI.SetRealReg("5003", $"{putOptionCodeStr.Remove(putOptionCodeStr.Length - 1, 1)}", KiwoomOption.FidList, "0");
+
         CommRqData();
     }
 
