@@ -190,6 +190,8 @@ partial class AnTalk
 
     void LookupStockConclusion(string code) => axAPI.CommRqData(new Opt10003 { Value = [code], PrevNext = 0 });
 
+    void LookupFOConclusion(string code) => axAPI.CommRqData(new OPT50006 { Value = [code], PrevNext = 0 });
+
     bool IsAdministrator
     {
         get; set;
