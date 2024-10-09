@@ -4,8 +4,8 @@ using Newtonsoft.Json;
 
 namespace ShareInvest.Transmission;
 
-/// <summary>체결정보요청</summary>
-class Opt10003 : Constructor
+/// <summary>선옵체결추이요청</summary>
+class OPT50006 : Constructor
 {
     internal override IEnumerable<string> OnReceiveTrData(AxKHOpenAPI axAPI, _DKHOpenAPIEvents_OnReceiveTrDataEvent e)
     {
@@ -13,7 +13,7 @@ class Opt10003 : Constructor
         {
             yield break;
         }
-        var now = DateTime.Now;
+        var singleData = OnReceiveTrSingleData(axAPI, e);
 
         foreach (var storage in OnReceiveTrMultiData(axAPI, e))
         {
@@ -21,13 +21,13 @@ class Opt10003 : Constructor
             {
                 continue;
             }
-            storage[Id[0]] = Value[0];
-            storage[nameof(Entities.Kiwoom.Opt10003.Date)] = (now.DayOfWeek switch
+
+            foreach (var single in singleData)
             {
-                DayOfWeek.Sunday => now.AddDays(-2),
-                DayOfWeek.Saturday => now.AddDays(-1),
-                _ => now
-            }).ToString("yyyyMMdd", TrConstructor.Culture);
+                storage[single.Key] = single.Value;
+            }
+            storage[Id[0]] = Value[0];
+            storage[nameof(Entities.Kiwoom.OPT50006.Date)] = DateTime.Now.ToString("yyyyMMdd", TrConstructor.Culture);
 
             yield return JsonConvert.SerializeObject(storage);
         }
